@@ -28,8 +28,10 @@ class AuthAction {
     if (!isPasswordMatch) {
       throw new Error("Invalid Login Credentials");
     }
+    
+    
 
-    return true;
+    return admin;
   }
 
   static async generateToken(data: any) {
@@ -56,6 +58,20 @@ class AuthAction {
 
     return loginSchema.safeParse(data);
   }
+
+  static async logActivity(admin: any, activity: string) {
+    await prisma.adminLog.create({
+      data: {
+        admin_id: admin.id,
+        name: admin.first_name + ' ' + admin.last_name,
+        email: admin.email,
+        date: new Date(),
+        time: new Date().toISOString().split('T')[1].split('.')[0],
+        activity: activity
+      }
+    })
+  }
+
 }
 
 export default AuthAction;

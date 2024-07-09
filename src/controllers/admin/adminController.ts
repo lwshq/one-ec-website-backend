@@ -9,6 +9,7 @@ import bcrypt from "bcrypt";
 const mailer = new Mailer();
 
 class AdminController {
+
   async auth(req: Request, res: Response) {
     try {
       const data: User = {
@@ -30,6 +31,8 @@ class AdminController {
       const admin = await AuthAction.execute(data);
 
       if (admin) {
+        await AuthAction.logActivity(admin, 'Logged in');
+
         const token = await AuthAction.generateToken(data);
 
         return AppResponse.sendSuccess({
@@ -59,6 +62,39 @@ class AdminController {
       });
     }
   }
+
+  async logout(req: Request, res: Response) {
+    try {
+      const admin = req.adminData;
+
+      if (!admin) {
+        return AppResponse.sendError({
+          res: res,
+          data: null,
+          message: "Admin not found",
+          code: 404
+        })
+      }
+
+      await AuthAction.logActivity(admin, 'Logged out');
+
+      return AppResponse.sendSuccess({
+        res: res,
+        data: null,
+        message: "Logout successful",
+        code: 200
+      });
+
+    } catch (error: any) {
+      return AppResponse.sendError({
+        res: res,
+        data: null,
+        message: `Internal server error : ${error.message}`,
+        code: 500
+      })
+    }
+  }
+
 }
 
 export default AdminController;
