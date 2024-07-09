@@ -1,0 +1,202 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         Int       @id @default(autoincrement())
+  firstName  String
+  middleName String?
+  lastName   String
+  email      String    @unique
+  password   String
+  contact    String?
+  dob        DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+
+  addresses UserAddress[]
+  payments  Payment[]
+}
+
+model Admin {
+  id         Int       @id @default(autoincrement())
+  firstName  String
+  middleName String?
+  lastName   String
+  email      String    @unique
+  password   String
+  contact    String?
+  roles      String[]  @default([])
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+}
+
+model CoopCoordinator {
+  id         Int               @id @default(autoincrement())
+  coopId     Int
+  firstName  String
+  middleName String?
+  lastName   String
+  email      String            @unique
+  dob        DateTime?
+  password   String
+  roles      CoordinatorRole[]
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+  deletedAt  DateTime?
+  status     String
+
+  coop Cooperative @relation(fields: [coopId], references: [id])
+}
+
+model Cooperative {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String
+  province    String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  coordinators CoopCoordinator[]
+  banks        CoopBank[]
+  meters       MeterAccount[]
+  bills        Bill[]
+  settlements  Settlement[]
+  Payment      Payment[]
+}
+
+model CoopBank {
+  id            Int    @id @default(autoincrement())
+  coopId        Int
+  bankName      String
+  accountNumber String
+
+  coop Cooperative @relation(fields: [coopId], references: [id])
+}
+
+model UserAddress {
+  id           Int       @id @default(autoincrement())
+  userId       Int
+  userProvince String
+  userTown     String
+  userBrgy     String
+  userSt       String
+  postNumber   String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model MeterAccount {
+  id          Int       @id @default(autoincrement())
+  coopId      Int
+  meterNumber String
+  accountName String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  coop         Cooperative    @relation(fields: [coopId], references: [id])
+  bills        Bill[]
+  MeterAddress MeterAddress[]
+}
+
+model Payment {
+  id              Int       @id @default(autoincrement())
+  userId          Int
+  billId          Int
+  coopId          Int
+  amount          Float
+  status          String
+  method          String
+  referenceNumber String
+  invoiceNumber   String
+  transactionDate DateTime
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  user User        @relation(fields: [userId], references: [id])
+  bill Bill        @relation(fields: [billId], references: [id])
+  coop Cooperative @relation(fields: [coopId], references: [id])
+}
+
+model Bill {
+  id              Int       @id @default(autoincrement())
+  meterAccountId  Int
+  coopId          Int
+  amount          Float
+  dueDate         DateTime
+  kwhConsume      Float
+  rate            Float
+  status          String
+  issuedDate      DateTime
+  referenceNumber String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  meterAccount MeterAccount @relation(fields: [meterAccountId], references: [id])
+  coop         Cooperative  @relation(fields: [coopId], references: [id])
+  payments     Payment[]
+}
+
+model MeterAddress {
+  id            Int       @id @default(autoincrement())
+  meterId       Int
+  meterProvince String
+  meterTown     String
+  meterBrgy     String
+  meterSt       String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  meter MeterAccount @relation(fields: [meterId], references: [id])
+}
+
+model Settlement {
+  id         Int       @id @default(autoincrement())
+  coopId     Int
+  amount     Float
+  commission Float
+  netAmount  Float
+  date       DateTime
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+
+  coop Cooperative @relation(fields: [coopId], references: [id])
+}
+
+model Role {
+  id           Int               @id @default(autoincrement())
+  name         String
+  permissions  String[]          @default([])
+  modules      String[]          @default([])
+  coordinators CoordinatorRole[]
+}
+
+model CoordinatorRole {
+  id            Int             @id @default(autoincrement())
+  coordinatorId Int
+  roleId        Int
+  role          Role            @relation(fields: [roleId], references: [id])
+  coordinator   CoopCoordinator @relation(fields: [coordinatorId], references: [id])
+}
