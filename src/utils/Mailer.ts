@@ -39,7 +39,7 @@ class Mailer {
         return reject(new Error("No content provided for email."));
       }
       const mailOptions = {
-        from: "NEXHK",
+        from: "OneEC",
         to: receiver,
         subject: subject,
         text: plainText ?? undefined,
