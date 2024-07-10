@@ -4,4 +4,6 @@ const runSeeder = async () => {
   await adminSeeder();
 };
 
+
 runSeeder(); 
+
