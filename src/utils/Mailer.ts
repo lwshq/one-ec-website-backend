@@ -63,6 +63,11 @@ class Mailer {
     return await this.sendEmail(email, subject, data, "failedLoginAlert");
   }
 
+  async sendPasswordResetLink(email: string, resetLink: string) {
+    const data = { resetLink };
+    return await this.sendEmail(email, "Password Reset Request", data, "passwordReset");
+  }
+
   // async testSender(message: string, email: string) {
   //   const subject = "This is a sample sample email";
   //   const data = { message: message };

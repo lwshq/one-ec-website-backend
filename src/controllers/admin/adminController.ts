@@ -3,6 +3,8 @@ import Mailer from "../../utils/Mailer";
 import { ErrorRequestHandler, Request, Response } from "express";
 import AppResponse from "../../utils/AppResponse";
 import AuthAction from "../../actions/admin/authAction";
+import ForgotPasswordAction from "../../actions/admin/adminForgotPassword";
+import { requestResetSchema, resetPasswordSchema } from "../../utils/validationSchemas";
 import { User } from "../../types/custom";
 import bcrypt from "bcrypt";
 
@@ -104,6 +106,65 @@ class AdminController {
     }
   }
 
+  async forgotPassword(req: Request, res: Response) {
+    try {
+      const validation = requestResetSchema.safeParse(req.body);
+      if (!validation.success) {
+        return AppResponse.sendError({
+          res: res,
+          data: null,
+          message: `Validation Error: ${validation.error.errors.map(err => err.message).join(", ")}`,
+          code: 400,
+        });
+      }
+
+      const { email } = validation.data;
+      await ForgotPasswordAction.requestReset(email);
+      return AppResponse.sendSuccess({
+        res: res,
+        data: null,
+        message: "Password reset link sent successfully",
+        code: 200,
+      });
+    } catch (error: any) {
+      return AppResponse.sendError({
+        res: res,
+        data: null,
+        message: `Error: ${error.message}`,
+        code: 400,
+      });
+    }
+  }
+
+  async resetPassword(req: Request, res: Response) {
+    try {
+      const validation = resetPasswordSchema.safeParse(req.body);
+      if (!validation.success) {
+        return AppResponse.sendError({
+          res: res,
+          data: null,
+          message: `Validation Error: ${validation.error.errors.map(err => err.message).join(", ")}`,
+          code: 400,
+        });
+      }
+
+      const { token, newPassword } = validation.data;
+      await ForgotPasswordAction.resetPassword(token, newPassword);
+      return AppResponse.sendSuccess({
+        res: res,
+        data: null,
+        message: "Password reset successfully",
+        code: 200,
+      });
+    } catch (error: any) {
+      return AppResponse.sendError({
+        res: res,
+        data: null,
+        message: `Error: ${error.message}`,
+        code: 400,
+      });
+    }
+  }
 }
 
 export default AdminController;
