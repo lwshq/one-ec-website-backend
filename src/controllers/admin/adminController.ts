@@ -53,13 +53,22 @@ class AdminController {
           message: error.message,
           code: 401,
         });
+      } else if (error.message.includes("Too many login attempts")) {
+        return AppResponse.sendError({
+          res: res,
+          data: null,
+          message: error.message,
+          code: 429
+        })
+      } else {
+        return AppResponse.sendError({
+          res: res,
+          data: null,
+          message: `Internal server error : ${error.message}`,
+          code: 500,
+        });
       }
-      return AppResponse.sendError({
-        res: res,
-        data: null,
-        message: `Internal server error : ${error.message}`,
-        code: 500,
-      });
+
     }
   }
 

@@ -68,17 +68,19 @@ model CoopCoordinator {
 }
 
 model Admin {
-  id             Int        @id @default(autoincrement())
-  first_name     String
-  last_name      String
-  birthdate      DateTime?
-  email          String     @unique
-  contact_number String?
-  role           String     @default("admin")
-  created_at     DateTime?  @default(now())
-  updated_at     DateTime?  @updatedAt
-  account        Account[]
-  AdminLog       AdminLog[]
+  id               Int        @id @default(autoincrement())
+  first_name       String
+  last_name        String
+  birthdate        DateTime?
+  email            String     @unique
+  contact_number   String?
+  role             String     @default("admin")
+  loginAttempts    Int        @default(0)
+  lastLoginAttempt DateTime?
+  created_at       DateTime?  @default(now())
+  updated_at       DateTime?  @updatedAt
+  account          Account[]
+  AdminLog         AdminLog[]
 
   @@map("admin")
 }
