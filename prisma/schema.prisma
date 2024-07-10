@@ -37,10 +37,11 @@ model User {
   updated_at     DateTime? @updatedAt
   deleted_at     DateTime?
 
-  addresses    UserAddress[]
-  payments     Payment[]
-  account      Account[]
-  MeterAccount MeterAccount[]
+  addresses     UserAddress[]
+  payments      Payment[]
+  account       Account[]
+  MeterAccount  MeterAccount[]
+  PasswordReset PasswordReset[]
 
   @@map("user")
 }
@@ -60,27 +61,29 @@ model CoopCoordinator {
   deleted_at     DateTime?
   status         String
 
-  coop    Cooperative       @relation(fields: [coop_id], references: [id])
-  account Account[]
-  roles   CoordinatorRole[]
+  coop          Cooperative       @relation(fields: [coop_id], references: [id])
+  account       Account[]
+  roles         CoordinatorRole[]
+  PasswordReset PasswordReset[]
 
   @@map("coordinator")
 }
 
 model Admin {
-  id               Int        @id @default(autoincrement())
+  id               Int             @id @default(autoincrement())
   first_name       String
   last_name        String
   birthdate        DateTime?
-  email            String     @unique
+  email            String          @unique
   contact_number   String?
-  role             String     @default("admin")
-  loginAttempts    Int        @default(0)
+  role             String          @default("admin")
+  loginAttempts    Int             @default(0)
   lastLoginAttempt DateTime?
-  created_at       DateTime?  @default(now())
-  updated_at       DateTime?  @updatedAt
+  created_at       DateTime?       @default(now())
+  updated_at       DateTime?       @updatedAt
   account          Account[]
   AdminLog         AdminLog[]
+  PasswordReset    PasswordReset[]
 
   @@map("admin")
 }
@@ -259,4 +262,18 @@ model AdminLog {
   admin Admin @relation(fields: [admin_id], references: [id])
 
   @@map("admin_log")
+}
+
+model PasswordReset {
+  id        Int             @id @default(autoincrement())
+  adminId   Int
+  userId    Int
+  coorId    Int
+  token     String          @unique
+  expiresAt DateTime
+  admin     Admin           @relation(fields: [adminId], references: [id])
+  user      User            @relation(fields: [userId], references: [id])
+  coopCoor  CoopCoordinator @relation(fields: [coorId], references: [id])
+
+  @@map("password_reset")
 }
