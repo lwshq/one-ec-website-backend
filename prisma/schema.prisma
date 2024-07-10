@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,53 +7,82 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id         Int       @id @default(autoincrement())
-  firstName  String
-  middleName String?
-  lastName   String
-  email      String    @unique
-  password   String
-  contact    String?
-  dob        DateTime?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  deletedAt  DateTime?
+model Account {
+  id             Int       @id @default(autoincrement())
+  password       String
+  user_id        Int?
+  coordinator_id Int?
+  admin_id       Int?
+  created_at     DateTime? @default(now())
+  updated_at     DateTime? @updatedAt
+  deleted_at     DateTime?
 
-  addresses UserAddress[]
-  payments  Payment[]
+  user        User?            @relation(fields: [user_id], references: [id])
+  coordinator CoopCoordinator? @relation(fields: [coordinator_id], references: [id])
+  admin       Admin?           @relation(fields: [admin_id], references: [id])
+
+  @@map("account")
 }
 
-model Admin {
-  id         Int       @id @default(autoincrement())
-  firstName  String
-  middleName String?
-  lastName   String
-  email      String    @unique
-  password   String
-  contact    String?
-  roles      String[]  @default([])
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  deletedAt  DateTime?
+model User {
+  id             Int       @id @default(autoincrement())
+  first_name     String
+  middle_name    String?
+  last_name      String
+  birthdate      DateTime?
+  email          String    @unique
+  contact_number String?
+  role           String    @default("user")
+  created_at     DateTime? @default(now())
+  updated_at     DateTime? @updatedAt
+  deleted_at     DateTime?
+
+  addresses    UserAddress[]
+  payments     Payment[]
+  account      Account[]
+  MeterAccount MeterAccount[]
+
+  @@map("user")
 }
 
 model CoopCoordinator {
-  id         Int               @id @default(autoincrement())
-  coopId     Int
-  firstName  String
-  middleName String?
-  lastName   String
-  email      String            @unique
-  dob        DateTime?
-  password   String
-  roles      CoordinatorRole[]
-  createdAt  DateTime          @default(now())
-  updatedAt  DateTime          @updatedAt
-  deletedAt  DateTime?
-  status     String
+  id             Int       @id @default(autoincrement())
+  first_name     String
+  middle_name    String?
+  last_name      String
+  birthdate      DateTime
+  email          String    @unique
+  contact_number String
+  coop_id        Int
+  role           String?   @default("coordinator")
+  created_at     DateTime? @default(now())
+  updated_at     DateTime? @updatedAt
+  deleted_at     DateTime?
+  status         String
 
-  coop Cooperative @relation(fields: [coopId], references: [id])
+  coop    Cooperative       @relation(fields: [coop_id], references: [id])
+  account Account[]
+  roles   CoordinatorRole[]
+
+  @@map("coordinator")
+}
+
+model Admin {
+  id               Int        @id @default(autoincrement())
+  first_name       String
+  last_name        String
+  birthdate        DateTime?
+  email            String     @unique
+  contact_number   String?
+  role             String     @default("admin")
+  loginAttempts    Int        @default(0)
+  lastLoginAttempt DateTime?
+  created_at       DateTime?  @default(now())
+  updated_at       DateTime?  @updatedAt
+  account          Account[]
+  AdminLog         AdminLog[]
+
+  @@map("admin")
 }
 
 model Cooperative {
@@ -77,64 +100,54 @@ model Cooperative {
   bills        Bill[]
   settlements  Settlement[]
   Payment      Payment[]
+
+  @@map("cooperative")
 }
 
 model CoopBank {
-  id            Int    @id @default(autoincrement())
-  coopId        Int
-  bankName      String
+  id            Int       @id @default(autoincrement())
+  cooperativeId Int
+  name          String
   accountNumber String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
 
-  coop Cooperative @relation(fields: [coopId], references: [id])
+  cooperative Cooperative @relation(fields: [cooperativeId], references: [id])
+
+  @@map("coop_bank")
 }
 
 model UserAddress {
-  id           Int       @id @default(autoincrement())
-  userId       Int
-  userProvince String
-  userTown     String
-  userBrgy     String
-  userSt       String
-  postNumber   String
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  deletedAt    DateTime?
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  address   String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   user User @relation(fields: [userId], references: [id])
-}
 
-model MeterAccount {
-  id          Int       @id @default(autoincrement())
-  coopId      Int
-  meterNumber String
-  accountName String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
-
-  coop         Cooperative    @relation(fields: [coopId], references: [id])
-  bills        Bill[]
-  MeterAddress MeterAddress[]
+  @@map("user_address")
 }
 
 model Payment {
-  id              Int       @id @default(autoincrement())
-  userId          Int
-  billId          Int
-  coopId          Int
-  amount          Float
-  status          String
-  method          String
-  referenceNumber String
-  invoiceNumber   String
-  transactionDate DateTime
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  deletedAt       DateTime?
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  billId    Int
+  coopId    Int
+  amount    Float
+  date      DateTime
+  status    String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   user User        @relation(fields: [userId], references: [id])
   bill Bill        @relation(fields: [billId], references: [id])
   coop Cooperative @relation(fields: [coopId], references: [id])
+
+  @@map("payment")
 }
 
 model Bill {
@@ -155,6 +168,25 @@ model Bill {
   meterAccount MeterAccount @relation(fields: [meterAccountId], references: [id])
   coop         Cooperative  @relation(fields: [coopId], references: [id])
   payments     Payment[]
+
+  @@map("bill")
+}
+
+model MeterAccount {
+  id        Int       @id @default(autoincrement())
+  meterId   String
+  userId    Int
+  coopId    Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  user         User           @relation(fields: [userId], references: [id])
+  coop         Cooperative    @relation(fields: [coopId], references: [id])
+  Bill         Bill[]
+  MeterAddress MeterAddress[]
+
+  @@map("meter_account")
 }
 
 model MeterAddress {
@@ -169,6 +201,8 @@ model MeterAddress {
   deletedAt     DateTime?
 
   meter MeterAccount @relation(fields: [meterId], references: [id])
+
+  @@map("meter_address")
 }
 
 model Settlement {
@@ -183,6 +217,8 @@ model Settlement {
   deletedAt  DateTime?
 
   coop Cooperative @relation(fields: [coopId], references: [id])
+
+  @@map("settlement")
 }
 
 model Role {
@@ -191,6 +227,11 @@ model Role {
   permissions  String[]          @default([])
   modules      String[]          @default([])
   coordinators CoordinatorRole[]
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  deletedAt    DateTime?
+
+  @@map("role")
 }
 
 model CoordinatorRole {
@@ -199,4 +240,23 @@ model CoordinatorRole {
   roleId        Int
   role          Role            @relation(fields: [roleId], references: [id])
   coordinator   CoopCoordinator @relation(fields: [coordinatorId], references: [id])
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  deletedAt     DateTime?
+
+  @@map("coordinator_role")
+}
+
+model AdminLog {
+  id       Int      @id @default(autoincrement())
+  admin_id Int
+  name     String
+  email    String
+  date     DateTime @default(now())
+  time     String
+  activity String
+
+  admin Admin @relation(fields: [admin_id], references: [id])
+
+  @@map("admin_log")
 }
