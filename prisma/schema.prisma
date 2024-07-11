@@ -7,6 +7,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  USER
+  COORDINATOR
+  ADMIN
+}
+
 model Account {
   id             Int       @id @default(autoincrement())
   password       String
@@ -32,7 +38,7 @@ model User {
   birthdate      DateTime?
   email          String    @unique
   contact_number String?
-  role           String    @default("user")
+  role           UserRole  @default(USER)
   created_at     DateTime? @default(now())
   updated_at     DateTime? @updatedAt
   deleted_at     DateTime?
@@ -55,7 +61,7 @@ model CoopCoordinator {
   email          String    @unique
   contact_number String
   coop_id        Int
-  role           String?   @default("coordinator")
+  role           UserRole? @default(COORDINATOR)
   created_at     DateTime? @default(now())
   updated_at     DateTime? @updatedAt
   deleted_at     DateTime?
@@ -76,7 +82,7 @@ model Admin {
   birthdate        DateTime?
   email            String          @unique
   contact_number   String?
-  role             String          @default("admin")
+  role             UserRole        @default(ADMIN)
   loginAttempts    Int             @default(0)
   lastLoginAttempt DateTime?
   created_at       DateTime?       @default(now())
@@ -251,16 +257,13 @@ model CoordinatorRole {
 }
 
 model AdminLog {
-  id        Int       @id @default(autoincrement())
-  admin_id  Int
-  name      String
-  email     String
-  date      DateTime  @default(now())
-  time      String
-  activity  String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
+  id       Int      @id @default(autoincrement())
+  admin_id Int
+  name     String
+  email    String
+  date     DateTime @default(now())
+  time     String
+  activity String
 
   admin Admin @relation(fields: [admin_id], references: [id])
 
@@ -268,15 +271,12 @@ model AdminLog {
 }
 
 model PasswordReset {
-  id        Int              @id @default(autoincrement())
+  id        Int             @id @default(autoincrement())
   adminId   Int?
   userId    Int?
   coorId    Int?
-  token     String           @unique
+  token     String          @unique
   expiresAt DateTime
-  createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
-  deletedAt DateTime?
   admin     Admin?           @relation(fields: [adminId], references: [id])
   user      User?            @relation(fields: [userId], references: [id])
   coopCoor  CoopCoordinator? @relation(fields: [coorId], references: [id])
