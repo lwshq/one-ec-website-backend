@@ -10,17 +10,14 @@ const options: Options = {
   definition: {
     openapi: "3.1.0",
     info: {
-      title:
-        "OneEC",
-      description: "API Documentaion",
+      title: "OneEC",
+      description: "API Documentation",
       version: "2.0.0",
     },
     components: {
       securitySchemes: {
         bearerAuth: {
-          type: "apiKey",
-          name: "Authorization",
-          in: "header",
+          type: "http",
           scheme: "bearer",
           bearerFormat: "JWT",
         },
@@ -39,16 +36,6 @@ const options: Options = {
         bearerAuth: [],
       },
     ],
-    // servers: [
-    //   {
-    //     url: localUrl, // Base URL for your API
-    //     description: "Local development server",
-    //   },
-    //   {
-    //     url: forwardedUrl, // Base URL for your API
-    //     description: "Port Forward Url",
-    //   },
-    // ],
   },
   apis: ["src/routers/*/*.{js,ts}", "dist/routers/*/*.{js,ts}"],
 };
@@ -62,6 +49,21 @@ const swagger = (app: Express) => {
     swaggerUi.setup(spec, {
       customCssUrl:
         "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui.min.css",
+      swaggerOptions: {
+        authAction: {
+          bearerAuth: {
+            name: "bearerAuth",
+            schema: {
+              type: "http",
+              in: "header",
+              name: "Authorization",
+              scheme: "bearer",
+              bearerFormat: "JWT",
+            },
+            value: "Bearer ", // Pre-fill with "Bearer " prefix
+          },
+        },
+      },
     })
   );
 };
