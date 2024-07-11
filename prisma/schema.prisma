@@ -98,7 +98,6 @@ model Cooperative {
   id          Int       @id @default(autoincrement())
   name        String
   description String
-  province    String
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   deletedAt   DateTime?
