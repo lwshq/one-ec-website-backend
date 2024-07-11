@@ -68,6 +68,11 @@ class Mailer {
     return await this.sendEmail(email, "Password Reset Request", data, "passwordReset");
   }
 
+  async sendPasswordChangeNotification(email: string, name: string) {
+    const data = { name };
+    return await this.sendEmail(email, "Password Changed", data, "passwordChanged");
+  }
+
   // async testSender(message: string, email: string) {
   //   const subject = "This is a sample sample email";
   //   const data = { message: message };

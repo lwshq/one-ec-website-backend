@@ -223,4 +223,95 @@ adminRoute.post(
     adminController.resetPassword
 )
 
+/**
+ * @swagger
+ * /api/v1/admin/change-password:
+ *   put:
+ *     summary: Change Password API
+ *     description: This endpoint allows an admin to change their password.
+ *     tags: [Admin Authentication]
+ *     security:
+ *       - apiKeyAuth: []
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *                 description: The current password of the admin
+ *                 example: currentPassword123
+ *               newPassword:
+ *                 type: string
+ *                 description: The new password for the admin
+ *                 example: newSecurePassword123
+ *               confirmPassword:
+ *                 type: string
+ *                 description: Confirm the new password
+ *                 example: newSecurePassword123
+ *             required:
+ *               - currentPassword
+ *               - newPassword
+ *               - confirmPassword
+ *     responses:
+ *       '200':
+ *         description: Password changed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Password changed successfully
+ *                 response:
+ *                   type: string
+ *                   example: Success
+ *                 code:
+ *                   type: integer
+ *                   example: 200
+ *       '400':
+ *         description: Invalid password or passwords do not match
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Current password is incorrect"
+ *                 response:
+ *                   type: string
+ *                   example: Error
+ *                 code:
+ *                   type: integer
+ *                   example: 400
+ *       '401':
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Unauthorized"
+ *                 response:
+ *                   type: string
+ *                   example: Error
+ *                 code:
+ *                   type: integer
+ *                   example: 401
+ */
+
+
+adminRoute.put("/change-password",
+    apiKeyAuth,
+    AdminMiddleware.authToken,
+    adminController.changePassword);
+
+
 export default adminRoute;

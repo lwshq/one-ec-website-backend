@@ -4,9 +4,10 @@ import { ErrorRequestHandler, Request, Response } from "express";
 import AppResponse from "../../utils/AppResponse";
 import AuthAction from "../../actions/admin/authAction";
 import ForgotPasswordAction from "../../actions/admin/adminForgotPassword";
-import { requestResetSchema, resetPasswordSchema } from "../../utils/validationSchemas";
+import { passwordChangeSchema, requestResetSchema, resetPasswordSchema } from "../../utils/validationSchemas";
 import { User } from "../../types/custom";
 import bcrypt from "bcrypt";
+import ChangePasswordAction from "../../actions/admin/adminChangePassword";
 
 const mailer = new Mailer();
 
@@ -165,6 +166,42 @@ class AdminController {
       });
     }
   }
+
+  async changePassword(req: Request, res: Response) {
+    try {
+      const adminId = req.adminData.id;
+      const { currentPassword, newPassword, confirmPassword } = req.body;
+
+      const validation = passwordChangeSchema.safeParse({ currentPassword, newPassword, confirmPassword})
+
+      if(!validation.success) {
+        return AppResponse.sendError({
+          res: res,
+          data: null,
+          message:  `Validation Error: ${validation.error.errors.map(err => err.message).join(", ")}`,
+          code: 400,
+        });
+      }
+
+      await ChangePasswordAction.changePassword(adminId, currentPassword, newPassword);
+
+      return AppResponse.sendSuccess({
+        res: res,
+        data: null,
+        message: "Password changed successfully",
+        code: 200,
+      })
+    } catch (error: any) {
+      return AppResponse.sendError({
+        res: res,
+        data: null,
+        message: error.message,
+        code: 400
+      })
+    }
+  }
+
+
 }
 
 export default AdminController;
