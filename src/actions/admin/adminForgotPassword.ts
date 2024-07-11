@@ -32,7 +32,6 @@ class ForgotPasswordAction {
         const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
         const mailer = new Mailer();
         await mailer.sendPasswordResetLink(admin.email, resetLink);
-        console.log(resetLink)
         return true;
     }
 
