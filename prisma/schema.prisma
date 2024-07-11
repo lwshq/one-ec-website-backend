@@ -251,13 +251,16 @@ model CoordinatorRole {
 }
 
 model AdminLog {
-  id       Int      @id @default(autoincrement())
-  admin_id Int
-  name     String
-  email    String
-  date     DateTime @default(now())
-  time     String
-  activity String
+  id        Int       @id @default(autoincrement())
+  admin_id  Int
+  name      String
+  email     String
+  date      DateTime  @default(now())
+  time      String
+  activity  String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   admin Admin @relation(fields: [admin_id], references: [id])
 
@@ -265,15 +268,18 @@ model AdminLog {
 }
 
 model PasswordReset {
-  id        Int             @id @default(autoincrement())
-  adminId   Int
-  userId    Int
-  coorId    Int
-  token     String          @unique
+  id        Int              @id @default(autoincrement())
+  adminId   Int?
+  userId    Int?
+  coorId    Int?
+  token     String           @unique
   expiresAt DateTime
-  admin     Admin           @relation(fields: [adminId], references: [id])
-  user      User            @relation(fields: [userId], references: [id])
-  coopCoor  CoopCoordinator @relation(fields: [coorId], references: [id])
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  deletedAt DateTime?
+  admin     Admin?           @relation(fields: [adminId], references: [id])
+  user      User?            @relation(fields: [userId], references: [id])
+  coopCoor  CoopCoordinator? @relation(fields: [coorId], references: [id])
 
   @@map("password_reset")
 }
