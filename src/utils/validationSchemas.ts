@@ -17,3 +17,10 @@ export const passwordChangeSchema = z.object({
   message: "Passwords don't match",
   path: ["confirmPassword"],
 });
+
+export const coopSchema = z.object({
+  name: z.string().max(255),
+  description: z.string().optional().nullable(),
+  address: z.string().max(255),
+  code: z.string().optional().nullable(),
+});
