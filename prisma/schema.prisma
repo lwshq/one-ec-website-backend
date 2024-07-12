@@ -98,6 +98,8 @@ model Cooperative {
   id          Int       @id @default(autoincrement())
   name        String
   description String
+  email       String    @unique
+  contact     String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   deletedAt   DateTime?

@@ -3,9 +3,11 @@ import CoopCreateAction from "../../actions/coop/coopCreateAction";
 import AppResponse from "../../utils/AppResponse";
 import CoopUpdateAction from "../../actions/coop/coopUpdateAction";
 import CoopShowAction from "../../actions/coop/coopShowAction";
+import CoopListAction from "../../actions/coop/coopListAction";
+import CoopDeleteAction from "../../actions/coop/coopDeleteAction";
 
 class CoopController {
-    async create (req: Request, res: Response) {
+    async create(req: Request, res: Response) {
 
         try {
             const validation = CoopCreateAction.validate(req.body);
@@ -52,28 +54,28 @@ class CoopController {
                 });
             }
 
-                const coopShow = await CoopShowAction.execute(parseInt(id));
+            const coopShow = await CoopShowAction.execute(parseInt(id));
 
-                if (!coopShow) {
-                  return AppResponse.sendError({
+            if (!coopShow) {
+                return AppResponse.sendError({
                     res: res,
                     data: null,
                     message: "Coop not found",
                     code: 404,
-                  })  
-                }
-
-
-                const coop = await CoopUpdateAction.execute(parseInt(id), req.body);
-                
-                
-                return AppResponse.sendSuccess({
-                    res: res,
-                    data: coop,
-                    message: "Campus updated successfully",
-                    code: 200,
                 })
-            
+            }
+
+
+            const coop = await CoopUpdateAction.execute(parseInt(id), req.body);
+
+
+            return AppResponse.sendSuccess({
+                res: res,
+                data: coop,
+                message: "Campus updated successfully",
+                code: 200,
+            })
+
         } catch (error: any) {
             return AppResponse.sendError({
                 res: res,
@@ -93,7 +95,7 @@ class CoopController {
                 return AppResponse.sendError({
                     res: res,
                     data: null,
-                    message: "Coop not found",
+                    message: "Coop not found or deleted",
                     code: 404
                 })
             }
@@ -112,6 +114,81 @@ class CoopController {
                 code: 500,
             })
         }
+    }
+
+    async list(req: Request, res: Response) {
+        const page = parseInt(req.query.page as string) || 1;
+        const pageSize = parseInt(req.query.pageSize as string) || 10;
+        try {
+            const { coops, total } = await CoopListAction.execute(page, pageSize)
+
+            if (!coops) {
+                return AppResponse.sendError({
+                    res: res,
+                    data: null,
+                    message: "No coop available",
+                    code: 404,
+                })
+            }
+
+            const totalPages = Math.ceil(total / pageSize);
+
+            return AppResponse.sendSuccess({
+                res: res,
+                data: {
+                    coops,
+                    pagination: {
+                        total,
+                        page,
+                        pageSize,
+                        totalPages,
+                    }
+                },
+                message: "Coops retrieved successfully",
+                code: 200,
+            })
+        } catch (error: any) {
+            return AppResponse.sendError({
+                res: res,
+                data: null,
+                message: `Internal server error: ${error.message}`,
+                code: 500
+            });
+        }
+
+    }
+
+    async delete(req: Request, res: Response) {
+
+        try {
+            const { id } = req.params;
+            const coop = await CoopDeleteAction.execute(parseInt(id));
+
+            if (!coop) {
+                return AppResponse.sendError({
+                    res: res,
+                    data: null,
+                    message: "Coop not found",
+                    code: 404
+                })
+            }
+
+            return AppResponse.sendSuccess({
+                res: res,
+                data: coop,
+                message: "Coop deleted successfully",
+                code: 200
+            });
+        } catch (error: any) {
+            return AppResponse.sendError({
+                res: res,
+                data: null,
+                message: `Internal server error ${error.message}`,
+                code: 500,
+
+            });
+        }
+
     }
 
 }
