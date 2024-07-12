@@ -2,7 +2,7 @@ import { Cooperative } from "@prisma/client";
 import prisma from "../../utils/client";
 import { coopSchema } from "../../utils/validationSchemas";
 
-class CreateCoopAction {
+class CoopCreateAction {
     static async execute(
         data: Omit <Cooperative, 'id' | 'created_at' | 'updated_at' | 'deleted_at'>
     ) {
@@ -19,4 +19,4 @@ class CreateCoopAction {
 
 }
 
-export default CreateCoopAction;
+export default CoopCreateAction;

@@ -21,9 +21,7 @@ const adminController = new AdminController();
  *   post:
  *     summary: Authentication API
  *     description: |
- *       This endpoint allows the admin to log in. It has two possible outcomes:
- *       1. If the device used by the admin is trusted, a token will be generated.
- *       2. If the device is not trusted, a verification code will be sent to the admin's email.
+ *       This endpoint allows the admin to log in.
  *     tags: [Admin Authentication]
  *     security:
  *       - apiKeyAuth: []
