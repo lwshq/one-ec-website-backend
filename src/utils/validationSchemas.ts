@@ -21,9 +21,13 @@ export const passwordChangeSchema = z.object({
 export const coopSchema = z.object({
   name: z.string().max(255),
   description: z.string().optional().nullable(),
+  email: z.string().email(),
+  contact: z.string().min(3).optional(),
 });
 
 export const coopSchemaUpdate = z.object({
   name: z.string().max(255).optional(),
   description: z.string().optional().nullable(),
+  email: z.string().email().optional(),
+  contact: z.string().min(3).optional(),
 });

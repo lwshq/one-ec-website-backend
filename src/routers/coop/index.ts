@@ -37,8 +37,17 @@ const coopController = new CoopController();
  *                 type: string
  *                 description: The description of the cooperative
  *                 example: "A technology-focused cooperative"
+ *               email:
+ *                 type: string
+ *                 description: The email of the cooperative
+ *                 example: "sample@email.com"
+ *               contact:
+ *                 type: string
+ *                 description: The contact of the cooperative
+ *                 example: "09123456789"
  *             required:
  *               - name
+ *               - email
  *     responses:
  *       201:
  *         description: Cooperative created successfully
@@ -59,6 +68,12 @@ const coopController = new CoopController();
  *                     description:
  *                       type: string
  *                       description: Description of the cooperative
+ *                     email:
+ *                       type: string
+ *                       description: email of the cooperative
+ *                     contact:
+ *                       type: string
+ *                       description: Contact of the cooperative
  *                     created_at:
  *                       type: string
  *                       format: date-time
@@ -134,6 +149,14 @@ coopRoute.post(
  *                 type: string
  *                 description: The updated description of the cooperative
  *                 example: "An updated description of the technology-focused cooperative"
+ *               email:
+ *                 type: string
+ *                 description: The email of the cooperative
+ *                 example: "sample@email.com"
+ *               contact:
+ *                 type: string
+ *                 description: The contact of the cooperative
+ *                 example: "09123456789"
  *     responses:
  *       200:
  *         description: Cooperative updated successfully
@@ -154,6 +177,12 @@ coopRoute.post(
  *                     description:
  *                       type: string
  *                       description: Updated description of the cooperative
+ *                     email:
+ *                       type: string
+ *                       description: Updated email of the cooperative
+ *                     contact:
+ *                       type: string
+ *                       description: Updated contact of the cooperative
  *                     updated_at:
  *                       type: string
  *                       format: date-time
@@ -208,7 +237,7 @@ coopRoute.put(
  * @swagger
  * /api/v1/coop/show/{id}:
  *   get:
- *     summary: Get a campus by ID
+ *     summary: Get a cooperative by ID
  *     tags: [Cooperative]
  *     security:
  *       - apiKeyAuth: []
@@ -219,10 +248,10 @@ coopRoute.put(
  *         schema:
  *           type: integer
  *         required: true
- *         description: The campus ID
+ *         description: The cooperative ID
  *     responses:
  *       200:
- *         description: Campus retrieved successfully
+ *         description: cooperative retrieved successfully
  *         content:
  *           application/json:
  *             schema:
@@ -235,7 +264,7 @@ coopRoute.put(
  *                 code:
  *                   type: integer
  *       404:
- *         description: Campus not found
+ *         description: cooperative not found
  *         content:
  *           application/json:
  *             schema:
@@ -267,6 +296,118 @@ coopRoute.get(
     apiKeyAuth,
     AdminMiddleware.authToken,
     coopController.show
+);
+
+/**
+ * @swagger
+ * /api/v2/campus/list:
+ *   get:
+ *     summary: Get all campuses
+ *     tags: [Cooperative]
+ *     security:
+ *       - apiKeyAuth: []
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Cooperatives retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                 message:
+ *                   type: string
+ *                 code:
+ *                   type: integer
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                 message:
+ *                   type: string
+ *                 code:
+ *                   type: integer
+ */
+
+coopRoute.get(
+    "/list",
+    apiKeyAuth,
+    AdminMiddleware.authToken,
+    coopController.list
+);
+
+/**
+ * @swagger
+ * /api/v1/coop/delete/{id}:
+ *   delete:
+ *     summary: Delete a cooperative by ID
+ *     tags: [Cooperative]
+ *     security:
+ *       - apiKeyAuth: []
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The cooperative ID
+ *     responses:
+ *       200:
+ *         description: Cooperative deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                 message:
+ *                   type: string
+ *                 code:
+ *                   type: integer
+ *       404:
+ *         description: Cooperative not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                 message:
+ *                   type: string
+ *                 code:
+ *                   type: integer
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                 message:
+ *                   type: string
+ *                 code:
+ *                   type: integer
+ */
+
+coopRoute.delete(
+    "/delete/:id",
+    apiKeyAuth,
+    AdminMiddleware.authToken,
+    coopController.delete
 );
 
 export default coopRoute;
