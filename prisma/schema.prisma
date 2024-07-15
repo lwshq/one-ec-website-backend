@@ -11,6 +11,7 @@ enum UserRole {
   USER
   COORDINATOR
   ADMIN
+  COOPSUPERADMIN
 }
 
 model Account {
@@ -54,10 +55,10 @@ model User {
 
 model CoopCoordinator {
   id             Int       @id @default(autoincrement())
-  first_name     String
+  first_name     String?
   middle_name    String?
-  last_name      String
-  birthdate      DateTime
+  last_name      String?
+  address        String?
   email          String    @unique
   contact_number String
   coop_id        Int
