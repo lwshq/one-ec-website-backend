@@ -73,6 +73,11 @@ class Mailer {
     return await this.sendEmail(email, "Password Changed", data, "passwordChanged");
   }
 
+  async sendAccountPassword(email: string, password: string, userEmail: string) {
+    const data = { password, email: userEmail };
+    return await this.sendEmail(email, "Your Account Password", data, "accountPassword");
+  }
+
   // async testSender(message: string, email: string) {
   //   const subject = "This is a sample sample email";
   //   const data = { message: message };
