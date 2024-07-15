@@ -53,28 +53,26 @@ model User {
   @@map("user")
 }
 
-model CoopCoordinator {
-  id             Int       @id @default(autoincrement())
-  first_name     String?
-  middle_name    String?
-  last_name      String?
-  address        String?
-  email          String    @unique
-  contact_number String
-  coop_id        Int
-  role           UserRole? @default(COORDINATOR)
-  created_at     DateTime? @default(now())
-  updated_at     DateTime? @updatedAt
-  deleted_at     DateTime?
-  status         String
+  model CoopCoordinator {
+    id             Int       @id @default(autoincrement())
+    first_name     String?
+    middle_name    String?
+    last_name      String?
+    email          String    @unique
+    contact_number String
+    coop_id        Int
+    role           UserRole? @default(COORDINATOR)
+    created_at     DateTime? @default(now())
+    updated_at     DateTime? @updatedAt
+    deleted_at     DateTime?
 
-  coop          Cooperative       @relation(fields: [coop_id], references: [id])
-  account       Account[]
-  roles         CoordinatorRole[]
-  PasswordReset PasswordReset[]
+    coop          Cooperative       @relation(fields: [coop_id], references: [id])
+    account       Account[]
+    roles         CoordinatorRole[]
+    PasswordReset PasswordReset[]
 
-  @@map("coordinator")
-}
+    @@map("coordinator")
+  }
 
 model Admin {
   id               Int             @id @default(autoincrement())
@@ -99,8 +97,7 @@ model Cooperative {
   id          Int       @id @default(autoincrement())
   name        String
   description String
-  email       String    @unique
-  contact     String?
+  address     String
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   deletedAt   DateTime?

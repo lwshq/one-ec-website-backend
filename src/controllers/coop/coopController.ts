@@ -5,10 +5,10 @@ import CoopUpdateAction from "../../actions/coop/coopUpdateAction";
 import CoopShowAction from "../../actions/coop/coopShowAction";
 import CoopListAction from "../../actions/coop/coopListAction";
 import CoopDeleteAction from "../../actions/coop/coopDeleteAction";
+import prisma from "../../utils/client";
 
 class CoopController {
-    async create(req: Request, res: Response) {
-
+    async create (req: Request, res: Response) {
         try {
             const validation = CoopCreateAction.validate(req.body);
 
@@ -18,15 +18,29 @@ class CoopController {
                     data: null,
                     message: `Validation error: ${validation.error.errors.map((err) => err.message).join(", ")}`,
                     code: 400
-                })
+                });
             }
 
-            const coop = await CoopCreateAction.execute(req.body);
+            // Check if the email already exists
+            const existingCoordinator = await prisma.coopCoordinator.findUnique({
+                where: { email: req.body.coordinator.email }
+            });
+
+            if (existingCoordinator) {
+                return AppResponse.sendError({
+                    res: res,
+                    data: null,
+                    message: "Email already exists",
+                    code: 400
+                });
+            }
+
+            const { coop, coordinator, role } = await CoopCreateAction.execute(req.body);
 
             return AppResponse.sendSuccess({
                 res: res,
-                data: coop,
-                message: "Campus created succesfully",
+                data: { coop, coordinator, role },
+                message: "Cooperative created successfully",
                 code: 201
             });
         } catch (error: any) {
@@ -37,8 +51,8 @@ class CoopController {
                 code: 500
             });
         }
-
     }
+
 
     async update(req: Request, res: Response) {
         try {
