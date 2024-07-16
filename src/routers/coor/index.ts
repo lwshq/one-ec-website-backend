@@ -1,22 +1,21 @@
 import { Router } from "express";
-import session from "express-session";
 import config from "../../config/index";
-import AdminController from "../../controllers/admin/adminController";
+import CoorController from "../../controllers/coor/coorController";
 import apiKeyAuth from "../../middlewares/apiKey";
-import AdminMiddleware from "../../middlewares/admin";
+import CoorMiddleware from "../../middlewares/coop";
 
-const adminRoute = Router();
-const adminController = new AdminController();
+const coorRoute = Router();
+const coorController = new CoorController();
 
 
 /**
  * @swagger
- * /api/v1/admin/authenticate:
+ * /api/v1/coor/authenticate:
  *   post:
  *     summary: Authentication API
  *     description: |
- *       This endpoint allows the admin to log in.
- *     tags: [Admin Authentication]
+ *       This endpoint allows the coordinator to log in.
+ *     tags: [Coordinator Authentication]
  *     security:
  *       - apiKeyAuth: []
  *       - bearerAuth: []
@@ -79,19 +78,19 @@ const adminController = new AdminController();
  *                   example: 401
  */
 
-adminRoute.post(
+coorRoute.post(
     "/authenticate",
     apiKeyAuth,
-    adminController.auth
+    coorController.auth
 );
 
 /**
  * @swagger
- * /api/v1/admin/forgot:
+ * /api/v1/coor/forgot:
  *   post:
  *     summary: Forgot Password API
- *     description: This endpoint allows an admin to request a password reset link to be sent to their registered email.
- *     tags: [Admin Authentication]
+ *     description: This endpoint allows a coordinator to request a password reset link to be sent to their registered email.
+ *     tags: [Coordinator Authentication]
  *     security:
  *       - apiKeyAuth: []
  *     requestBody:
@@ -103,7 +102,7 @@ adminRoute.post(
  *             properties:
  *               email:
  *                 type: string
- *                 description: Registered email of the admin
+ *                 description: Registered email of the coor
  *                 example: sampleemail@gmail.com
  *             required:
  *               - email
@@ -133,7 +132,7 @@ adminRoute.post(
  *               properties:
  *                 message:
  *                   type: string
- *                   example: "Error: Admin not found"
+ *                   example: "Error: Coordinator not found"
  *                 response:
  *                   type: string
  *                   example: Error
@@ -142,19 +141,19 @@ adminRoute.post(
  *                   example: 400
  */
 
-adminRoute.post(
+coorRoute.post(
     "/forgot",
     apiKeyAuth,
-    adminController.forgotPassword
+    coorController.forgotPassword
 )
 
 /**
  * @swagger
- * /api/v1/admin/reset:
+ * /api/v1/coor/reset:
  *   post:
  *     summary: Reset Password API
- *     description: This endpoint allows an admin to reset their password using a token sent to their email.
- *     tags: [Admin Authentication]
+ *     description: This endpoint allows an coor to reset their password using a token sent to their email.
+ *     tags: [Coordinator Authentication]
  *     security:
  *       - apiKeyAuth: []
  *     requestBody:
@@ -210,19 +209,19 @@ adminRoute.post(
  *                   example: 400
  */
 
-adminRoute.post(
+coorRoute.post(
     "/reset",
     apiKeyAuth,
-    adminController.resetPassword
+    coorController.resetPassword
 )
 
 /**
  * @swagger
- * /api/v1/admin/change-password:
+ * /api/v1/coor/change-password:
  *   put:
  *     summary: Change Password API
- *     description: This endpoint allows an admin to change their password.
- *     tags: [Admin Authentication]
+ *     description: This endpoint allows a coor to change their password.
+ *     tags: [Coordinator Authentication]
  *     security:
  *       - apiKeyAuth: []
  *       - bearerAuth: []
@@ -235,11 +234,11 @@ adminRoute.post(
  *             properties:
  *               currentPassword:
  *                 type: string
- *                 description: The current password of the admin
+ *                 description: The current password of the coor
  *                 example: currentPassword123
  *               newPassword:
  *                 type: string
- *                 description: The new password for the admin
+ *                 description: The new password for the coor
  *                 example: newSecurePassword123
  *               confirmPassword:
  *                 type: string
@@ -301,10 +300,13 @@ adminRoute.post(
  */
 
 
-adminRoute.put("/change-password",
+coorRoute.put("/change-password",
     apiKeyAuth,
-    AdminMiddleware.authToken,
-    adminController.changePassword);
+    CoorMiddleware.authToken,
+    coorController.changePassword);
 
 
-export default adminRoute;
+
+
+
+export default coorRoute;

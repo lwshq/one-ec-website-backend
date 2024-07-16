@@ -53,26 +53,29 @@ model User {
   @@map("user")
 }
 
-  model CoopCoordinator {
-    id             Int       @id @default(autoincrement())
-    first_name     String?
-    middle_name    String?
-    last_name      String?
-    email          String    @unique
-    contact_number String
-    coop_id        Int
-    role           UserRole? @default(COORDINATOR)
-    created_at     DateTime? @default(now())
-    updated_at     DateTime? @updatedAt
-    deleted_at     DateTime?
+model CoopCoordinator {
+  id               Int       @id @default(autoincrement())
+  first_name       String?
+  middle_name      String?
+  last_name        String?
+  email            String    @unique
+  contact_number   String
+  coop_id          Int
+  role             UserRole? @default(COORDINATOR)
+  loginAttempts    Int       @default(0)
+  lastLoginAttempt DateTime?
+  created_at       DateTime? @default(now())
+  updated_at       DateTime? @updatedAt
+  deleted_at       DateTime?
 
-    coop          Cooperative       @relation(fields: [coop_id], references: [id])
-    account       Account[]
-    roles         CoordinatorRole[]
-    PasswordReset PasswordReset[]
+  coop          Cooperative       @relation(fields: [coop_id], references: [id])
+  account       Account[]
+  roles         CoordinatorRole[]
+  PasswordReset PasswordReset[]
+  AdminLog      AdminLog[]
 
-    @@map("coordinator")
-  }
+  @@map("coordinator")
+}
 
 model Admin {
   id               Int             @id @default(autoincrement())
@@ -256,17 +259,19 @@ model CoordinatorRole {
 }
 
 model AdminLog {
-  id       Int      @id @default(autoincrement())
-  admin_id Int
-  name     String
-  email    String
-  date     DateTime @default(now())
-  time     String
-  activity String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id        Int              @id @default(autoincrement())
+  admin_id  Int?
+  coor_id   Int?
+  name      String
+  email     String
+  date      DateTime         @default(now())
+  time      String
+  activity  String
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
   deletedAt DateTime?
-  admin Admin @relation(fields: [admin_id], references: [id])
+  admin     Admin?           @relation(fields: [admin_id], references: [id])
+  coor      CoopCoordinator? @relation(fields: [coor_id], references: [id])
 
   @@map("admin_log")
 }
