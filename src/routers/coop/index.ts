@@ -383,7 +383,7 @@ coopRoute.get(
 
 /**
  * @swagger
- * /api/v2/campus/list:
+ * /api/v1/coop/list:
  *   get:
  *     summary: Get all campuses
  *     tags: [Cooperative]
