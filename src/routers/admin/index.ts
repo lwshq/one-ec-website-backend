@@ -30,11 +30,11 @@ const adminController = new AdminController();
  *               email:
  *                 type: string
  *                 description: Email is required
- *                 example: sampleemail@gmail.com
+ *                 example: sacdalernest02@gmail.com
  *               password:
  *                 type: string
  *                 description: Password is required
- *                 example: pass123
+ *                 example: password
  *             required:
  *               - email
  *               - password

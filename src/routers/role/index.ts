@@ -325,4 +325,69 @@ coorRoute.get(
     roleController.list
 );
 
+/**
+ * @swagger
+ * /api/v1/role/delete/{id}:
+ *   delete:
+ *     summary: Delete a role by ID
+ *     tags: [Role Management]
+ *     security:
+ *       - apiKeyAuth: []
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The role ID
+ *     responses:
+ *       200:
+ *         description: Role deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                 message:
+ *                   type: string
+ *                 code:
+ *                   type: integer
+ *       404:
+ *         description: Cooperative not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                 message:
+ *                   type: string
+ *                 code:
+ *                   type: integer
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                 message:
+ *                   type: string
+ *                 code:
+ *                   type: integer
+ */
+
+roleRoute.delete(
+    "/delete/:id",
+    apiKeyAuth,
+    CoorMiddleware.authToken,
+    roleController.delete
+);
+
 export default roleRoute;

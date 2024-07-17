@@ -8,6 +8,7 @@ import { ZodError } from "zod";
 import { roleSchemaCreate } from "../../utils/validationSchemas";
 import RoleShowAction from "../../actions/role/roleShowAction";
 import RoleListPaginateAction from "../../actions/role/roleListPaginateAction";
+import RoleDeleteAction from "../../actions/role/roleDeleteAction";
 
 class RoleController {
 
@@ -161,6 +162,40 @@ class RoleController {
         }
 
     }
+
+    async delete(req: Request, res: Response) {
+
+        try {
+            const { id } = req.params;
+            const role = await RoleDeleteAction.execute(parseInt(id));
+
+            if (!role) {
+                return AppResponse.sendError({
+                    res: res,
+                    data: null,
+                    message: "Role not found",
+                    code: 404
+                })
+            }
+
+            return AppResponse.sendSuccess({
+                res: res,
+                data: role,
+                message: "Role deleted successfully",
+                code: 200
+            });
+        } catch (error: any) {
+            return AppResponse.sendError({
+                res: res,
+                data: null,
+                message: `Internal server error ${error.message}`,
+                code: 500,
+
+            });
+        }
+
+    }
+
 
 }
 
