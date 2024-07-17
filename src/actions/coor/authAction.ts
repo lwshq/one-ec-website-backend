@@ -11,6 +11,7 @@ class AuthAction {
     const coor = await prisma.coopCoordinator.findFirst({
       where: {
         email: String(data.email),
+        deleted_at: null,
       },
       include: {
         account: true

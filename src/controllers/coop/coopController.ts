@@ -21,8 +21,8 @@ class CoopController {
                 });
             }
 
-            // Check if the email already exists
-            const existingCoordinator = await prisma.coopCoordinator.findUnique({
+            
+           const existingCoordinator = await prisma.coopCoordinator.findUnique({
                 where: { email: req.body.coordinator.email }
             });
 
@@ -86,7 +86,7 @@ class CoopController {
             return AppResponse.sendSuccess({
                 res: res,
                 data: coop,
-                message: "Campus updated successfully",
+                message: "Coordinator updated successfully",
                 code: 200,
             })
 
