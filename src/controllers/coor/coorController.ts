@@ -5,13 +5,18 @@ import AppResponse from "../../utils/AppResponse";
 import AuthAction from "../../actions/coor/authAction";
 import ForgotPasswordAction from "../../actions/coor/coorForgotPassword";
 import ChangePasswordAction from "../../actions/coor/coorChangePassword";
-import { requestResetSchema, passwordChangeSchema, resetPasswordSchema, assignRolesSchema, coorSchemaCreate } from "../../utils/validationSchemas";
+import { requestResetSchema, passwordChangeSchema, resetPasswordSchema, assignRolesSchema, coorSchemaCreate, coorSchemaUpdate } from "../../utils/validationSchemas";
 import { User } from "../../types/custom";
 import bcrypt from "bcrypt";
 import prisma from "../../utils/client";
 import { ZodError } from "zod";
 import CoorCreateAction from "../../actions/coor/coorCreateAction";
 import { toFinite } from "lodash";
+import CoorUpdateAction from "../../actions/coor/coorUpdateAction";
+import CoorListPaginateAction from "../../actions/coor/coorListPaginationAction";
+import CoorDeleteAction from "../../actions/coor/coorDeleteAction";
+import CoorShowAction from "../../actions/coor/coorShowAction";
+import CoorListPaginatePerCoopAction from "../../actions/coor/coorListPerCoopAction";
 
 class CoorController {
   async auth(req: Request, res: Response) {
@@ -275,6 +280,198 @@ class CoorController {
       });
     }
   }
+
+  async update(req: Request, res: Response) {
+    try {
+      const coorId = parseInt(req.params.id);
+
+      const roleValidation = assignRolesSchema.safeParse(req.body);
+      if (!roleValidation.success) {
+        return AppResponse.sendError({
+          res,
+          data: null,
+          message: `Validation error: ${roleValidation.error.errors.map(e => e.message).join(", ")}`,
+          code: 400
+        });
+      }
+
+      const dataValidation = coorSchemaUpdate.safeParse(req.body.data);
+      if (!dataValidation.success) {
+        return AppResponse.sendError({
+          res,
+          data: null,
+          message: `Validation error: ${dataValidation.error.errors.map(e => e.message).join(", ")}`,
+          code: 400
+        });
+      }
+
+      const { data, roleIds } = req.body;
+
+      const result = await CoorUpdateAction.execute(coorId, data, roleIds)
+      return AppResponse.sendSuccess({
+        res,
+        data: result,
+        message: "Coordinator updated successfully",
+        code: 200
+      })
+    } catch (error: any) {
+      return AppResponse.sendError({
+        res: res,
+        data: null,
+        message: `Internal server error ${error.message}`,
+        code: 500
+      })
+    }
+  }
+
+  async list(req: Request, res: Response) {
+    const page = parseInt(req.query.page as string) || 1;
+    const pageSize = parseInt(req.query.pageSize as string) || 10;
+    try {
+      const { coors, total } = await CoorListPaginateAction.execute(page, pageSize)
+
+      if (!coors) {
+        return AppResponse.sendError({
+          res: res,
+          data: null,
+          message: "No coor available",
+          code: 404,
+        })
+      }
+
+      const totalPages = Math.ceil(total / pageSize);
+
+      return AppResponse.sendSuccess({
+        res: res,
+        data: {
+          coors,
+          pagination: {
+            total,
+            page,
+            pageSize,
+            totalPages,
+          }
+        },
+        message: "Coors retrieved successfully",
+        code: 200,
+      })
+    } catch (error: any) {
+      return AppResponse.sendError({
+        res: res,
+        data: null,
+        message: `Internal server error: ${error.message}`,
+        code: 500
+      });
+    }
+
+  }
+
+  async delete(req: Request, res: Response) {
+
+    try {
+      const { id } = req.params;
+      const coop = await CoorDeleteAction.execute(parseInt(id));
+
+      if (!coop) {
+        return AppResponse.sendError({
+          res: res,
+          data: null,
+          message: "Coor not found",
+          code: 404
+        })
+      }
+
+      return AppResponse.sendSuccess({
+        res: res,
+        data: coop,
+        message: "Coor deleted successfully",
+        code: 200
+      });
+    } catch (error: any) {
+      return AppResponse.sendError({
+        res: res,
+        data: null,
+        message: `Internal server error ${error.message}`,
+        code: 500,
+
+      });
+    }
+
+  }
+
+  async show(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const coor = await CoorShowAction.execute(parseInt(id))
+
+      if (!coor) {
+        return AppResponse.sendError({
+          res: res,
+          data: null,
+          message: "Coor not found or deleted",
+          code: 404
+        })
+      }
+
+      return AppResponse.sendSuccess({
+        res: res,
+        data: coor,
+        message: "Coor retrieved successfully",
+        code: 200
+      })
+    } catch (error: any) {
+      return AppResponse.sendError({
+        res: res,
+        data: null,
+        message: `Internal server error ${error.message}`,
+        code: 500,
+      })
+    }
+  }
+
+  async listPerCoop(req: Request, res: Response) {
+    const coopId = req.coorData.coop_id
+    const page = parseInt(req.query.page as string) || 1;
+    const pageSize = parseInt(req.query.pageSize as string) || 10;
+    try {
+      const { coors, total } = await CoorListPaginatePerCoopAction.execute(page, pageSize, coopId)
+
+      if (!coors) {
+        return AppResponse.sendError({
+          res: res,
+          data: null,
+          message: "No coor available",
+          code: 404,
+        })
+      }
+
+      const totalPages = Math.ceil(total / pageSize);
+
+      return AppResponse.sendSuccess({
+        res: res,
+        data: {
+          coors,
+          pagination: {
+            total,
+            page,
+            pageSize,
+            totalPages,
+          }
+        },
+        message: "Coors retrieved successfully",
+        code: 200,
+      })
+    } catch (error: any) {
+      return AppResponse.sendError({
+        res: res,
+        data: null,
+        message: `Internal server error: ${error.message}`,
+        code: 500
+      });
+    }
+
+  }
+
 }
 
 export default CoorController;
