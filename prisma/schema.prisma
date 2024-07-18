@@ -61,6 +61,7 @@ model CoopCoordinator {
   email            String    @unique
   contact_number   String
   coop_id          Int
+  address          String?
   role             UserRole? @default(COORDINATOR)
   loginAttempts    Int       @default(0)
   lastLoginAttempt DateTime?

@@ -29,11 +29,11 @@ const coorController = new CoorController();
  *               email:
  *                 type: string
  *                 description: Email is required
- *                 example: sampleemail@gmail.com
+ *                 example: sacdalernest02@gmail.com
  *               password:
  *                 type: string
  *                 description: Password is required
- *                 example: pass123
+ *                 example: password
  *             required:
  *               - email
  *               - password
@@ -305,6 +305,179 @@ coorRoute.put("/change-password",
     CoorMiddleware.authToken,
     coorController.changePassword);
 
+
+/**
+ * @swagger
+ * /api/v1/coor/create:
+ *   post:
+ *     summary: Create Coordinator API
+ *     description: |
+ *       This endpoint allows an admin to create a new coordinator.
+ *     tags: [Coordinator Management]
+ *     security:
+ *       - apiKeyAuth: []
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               data:
+ *                 type: object
+ *                 properties:
+ *                   first_name:
+ *                     type: string
+ *                     description: First name of the coordinator
+ *                     example: John
+ *                   middle_name:
+ *                     type: string
+ *                     description: Middle name of the coordinator
+ *                     example: A.
+ *                   last_name:
+ *                     type: string
+ *                     description: Last name of the coordinator
+ *                     example: Doe
+ *                   email:
+ *                     type: string
+ *                     description: Email of the coordinator
+ *                     example: sacdalernest04@example.com
+ *                   contact_number:
+ *                     type: string
+ *                     description: Contact number of the coordinator
+ *                     example: 1234567890
+ *                   address:
+ *                     type: string
+ *                     description: Address of the coordinator
+ *                     example: "123 Main St, Anytown, USA"
+ *               roleIds:
+ *                 type: array
+ *                 description: List of role IDs to assign to the coordinator
+ *                 items:
+ *                   type: integer
+ *                 example: [1, 2, 3]
+ *             required:
+ *               - data
+ *               - roleIds
+ *     responses:
+ *       '201':
+ *         description: Coordinator created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     coordinator:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: integer
+ *                           example: 1
+ *                         first_name:
+ *                           type: string
+ *                           example: John
+ *                         middle_name:
+ *                           type: string
+ *                           example: A.
+ *                         last_name:
+ *                           type: string
+ *                           example: Doe
+ *                         email:
+ *                           type: string
+ *                           example: johndoe@example.com
+ *                         contact_number:
+ *                           type: string
+ *                           example: 1234567890
+ *                         coop_id:
+ *                           type: integer
+ *                           example: 1
+ *                         role:
+ *                           type: string
+ *                           example: COORDINATOR
+ *                     coordinatorRoles:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: integer
+ *                             example: 1
+ *                           coordinatorId:
+ *                             type: integer
+ *                             example: 1
+ *                           roleId:
+ *                             type: integer
+ *                             example: 1
+ *                 message:
+ *                   type: string
+ *                   example: Coordinator created successfully
+ *                 response:
+ *                   type: string
+ *                   example: Success
+ *                 code:
+ *                   type: integer
+ *                   example: 201
+ *       '400':
+ *         description: Validation error or email already exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Validation error
+ *                 response:
+ *                   type: string
+ *                   example: Error
+ *                 code:
+ *                   type: integer
+ *                   example: 400
+ *       '404':
+ *         description: Some roles not found or are deleted
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Some roles not found or are deleted
+ *                 response:
+ *                   type: string
+ *                   example: Error
+ *                 code:
+ *                   type: integer
+ *                   example: 404
+ *       '500':
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ *                 response:
+ *                   type: string
+ *                   example: Error
+ *                 code:
+ *                   type: integer
+ *                   example: 500
+ */
+
+
+coorRoute.post(
+    "/create",
+    apiKeyAuth,
+    CoorMiddleware.authToken,
+    coorController.create
+);
 
 
 
