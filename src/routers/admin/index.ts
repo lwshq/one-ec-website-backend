@@ -307,4 +307,58 @@ adminRoute.put("/change-password",
     adminController.changePassword);
 
 
+/**
+ * @swagger
+ * /api/v1/admin/logout:
+ *   post:
+ *     summary: Logout API
+ *     description: |
+ *       This endpoint allows the admin to log out.
+ *     tags: [Admin Authentication]
+ *     security:
+ *       - apiKeyAuth: []
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: false
+ *     responses:
+ *       '200':
+ *         description: Logout successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Logout successful
+ *                 response:
+ *                   type: string
+ *                   example: Success
+ *                 code:
+ *                   type: integer
+ *                   example: 200
+ *       '401':
+ *         description: Unauthorized access, invalid token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Unauthorized, please login again
+ *                 response:
+ *                   type: string
+ *                   example: Error
+ *                 code:
+ *                   type: integer
+ *                   example: 401
+ */
+
+adminRoute.post("/logout",
+    apiKeyAuth,
+    AdminMiddleware.authToken,
+    adminController.logout);
+
+
 export default adminRoute;

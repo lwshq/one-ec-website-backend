@@ -27,7 +27,8 @@ export const coopSchema = z.object({
     middle_name: z.string().optional(),
     last_name: z.string().optional(),
     email: z.string().email(),
-    contact_number: z.string()
+    contact_number: z.string(),
+    address: z.string().optional(),
   }),
 });
 
@@ -40,11 +41,24 @@ export const coopSchemaUpdate = z.object({
 export const roleSchemaCreate = z.object({
   name: z.string().max(255),
   permissions: z.array(z.enum(["view", "add", "edit", "delete"])).min(1, "At least one permission is required"),
-  modules: z.array(z.string().min(1)).min(1, "Atleast one module is required"),
+  modules: z.array(z.enum(["soa", "role", "users"])).min(1, "At least one module is required"),
 });
 
 export const roleSchemaUpdate = z.object({
   name: z.string().max(255).optional(),
   permissions: z.array(z.enum(["view", "add", "edit", "delete"])).min(1, "At least one permission is required").optional(),
-  modules: z.array(z.string().min(1)).min(1, "Atleast one module is required").optional(),
+  modules: z.array(z.enum(["soa", "role", "users"])).min(1, "At least one module is required").optional(),
+});
+
+export const coorSchemaCreate = z.object({
+  first_name: z.string().optional(),
+  middle_name: z.string().optional(),
+  last_name: z.string().optional(),
+  email: z.string().email().or(z.string().min(1, "Email is required")),
+  contact_number: z.string().min(1, "Contact number is required"),
+  address: z.string().optional(),
+})
+
+export const assignRolesSchema = z.object({
+  roleIds: z.array(z.number()).min(1, "At least one role is required")
 });

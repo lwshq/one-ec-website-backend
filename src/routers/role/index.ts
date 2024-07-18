@@ -5,6 +5,7 @@ import apiKeyAuth from "../../middlewares/apiKey";
 import CoorMiddleware from "../../middlewares/coop";
 import CoorController from "../../controllers/coor/coorController";
 import coorRoute from "../coor";
+import CheckAccess from "../../middlewares/role";
 
 const roleRoute = Router();
 const roleController = new RoleController();
@@ -100,6 +101,7 @@ roleRoute.post(
     "/create",
     apiKeyAuth,
     CoorMiddleware.authToken,
+    CheckAccess(['add'], ['role']),
     roleController.create
 );
 
@@ -210,6 +212,7 @@ roleRoute.put(
     "/update/:id",
     apiKeyAuth,
     CoorMiddleware.authToken,
+    CheckAccess(['edit'], ['role']),
     roleController.update
 );
 
@@ -275,12 +278,13 @@ roleRoute.get(
     "/show/:id",
     apiKeyAuth,
     CoorMiddleware.authToken,
+    CheckAccess(['view'], ['role']),
     roleController.show
 );
 
 /**
  * @swagger
- * /api/v1/coop/list:
+ * /api/v1/role/list:
  *   get:
  *     summary: Get all roles
  *     tags: [Role Management]
@@ -318,10 +322,11 @@ roleRoute.get(
  *                   type: integer
  */
 
-coorRoute.get(
+roleRoute.get(
     "/list",
     apiKeyAuth,
     CoorMiddleware.authToken,
+    CheckAccess(['view'], ['role']),
     roleController.list
 );
 
@@ -387,6 +392,7 @@ roleRoute.delete(
     "/delete/:id",
     apiKeyAuth,
     CoorMiddleware.authToken,
+    CheckAccess(['delete'], ['role']),
     roleController.delete
 );
 
