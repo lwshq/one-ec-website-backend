@@ -15,7 +15,7 @@ class ForgotPasswordAction {
         });
 
         if (!admin) {
-            throw new Error("Admin not found");
+            throw new Error("Email does not exist");
         }
 
         const token = crypto.randomBytes(32).toString("hex");

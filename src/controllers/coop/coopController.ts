@@ -117,7 +117,7 @@ class CoopController {
             return AppResponse.sendSuccess({
                 res: res,
                 data: coop,
-                message: "Campus retrieved successfully",
+                message: "Coop retrieved successfully",
                 code: 200
             })
         } catch (error: any) {

@@ -3,6 +3,7 @@ import config from "../../config/index";
 import CoorController from "../../controllers/coor/coorController";
 import apiKeyAuth from "../../middlewares/apiKey";
 import CoorMiddleware from "../../middlewares/coop";
+import CheckAccess from "../../middlewares/role";
 
 const coorRoute = Router();
 const coorController = new CoorController();
@@ -479,7 +480,388 @@ coorRoute.post(
     coorController.create
 );
 
+/**
+ * @swagger
+ * /api/v1/coor/update/{coorId}:
+ *   put:
+ *     summary: Update Coordinator API
+ *     description: |
+ *       This endpoint allows an admin to update an existing coordinator's details.
+ *     tags: [Coordinator Management]
+ *     security:
+ *       - apiKeyAuth: []
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: coorId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The ID of the coordinator to update
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               data:
+ *                 type: object
+ *                 properties:
+ *                   first_name:
+ *                     type: string
+ *                     description: First name of the coordinator
+ *                     example: John
+ *                   middle_name:
+ *                     type: string
+ *                     optional: true
+ *                     description: Middle name of the coordinator
+ *                     example: A.
+ *                   last_name:
+ *                     type: string
+ *                     description: Last name of the coordinator
+ *                     example: Doe
+ *                   contact_number:
+ *                     type: string
+ *                     description: Contact number of the coordinator
+ *                     example: 1234567890
+ *                   address:
+ *                     type: string
+ *                     description: Address of the coordinator
+ *                     example: "123 Main St, Anytown, USA"
+ *               roleIds:
+ *                 type: array
+ *                 description: List of new or existing role IDs to assign to the coordinator
+ *                 items:
+ *                   type: integer
+ *                 example: [1, 2]
+ *             required:
+ *               - data
+ *               - roleIds
+ *     responses:
+ *       '200':
+ *         description: Coordinator updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     coordinator:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: integer
+ *                           example: 1
+ *                         first_name:
+ *                           type: string
+ *                           example: John
+ *                         middle_name:
+ *                           type: string
+ *                           example: A.
+ *                         last_name:
+ *                           type: string
+ *                           example: Doe
+ *                         contact_number:
+ *                           type: string
+ *                           example: 1234567890
+ *                         address:
+ *                           type: string
+ *                           example: "123 Main St, Anytown, USA"
+ *                 message:
+ *                   type: string
+ *                   example: Coordinator updated successfully
+ *                 response:
+ *                   type: string
+ *                   example: Success
+ *                 code:
+ *                   type: integer
+ *                   example: 200
+ *       '400':
+ *         description: Validation error or missing fields
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Validation error
+ *                 response:
+ *                   type: string
+ *                   example: Error
+ *                 code:
+ *                   type: integer
+ *                   example: 400
+ *       '404':
+ *         description: Coordinator not found or some roles not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Coordinator not found
+ *                 response:
+ *                   type: string
+ *                   example: Error
+ *                 code:
+ *                   type: integer
+ *                   example: 404
+ *       '500':
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Internal server error
+ *                 response:
+ *                   type: string
+ *                   example: Error
+ *                 code:
+ *                   type: integer
+ *                   example: 500
+ */
 
+coorRoute.put(
+    "/update/:id",
+    apiKeyAuth,
+    CoorMiddleware.authToken,
+    CheckAccess(['edit'], ['users']),
+    coorController.update
+);
 
+/**
+ * @swagger
+ * /api/v1/coor/list:
+ *   get:
+ *     summary: Get all coordinators
+ *     tags: [Coordinator Management]
+ *     security:
+ *       - apiKeyAuth: []
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Coordinators retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                 message:
+ *                   type: string
+ *                 code:
+ *                   type: integer
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                 message:
+ *                   type: string
+ *                 code:
+ *                   type: integer
+ */
+
+coorRoute.get(
+    "/list",
+    apiKeyAuth,
+    CoorMiddleware.authToken,
+    CheckAccess([], ['users']),
+    coorController.list
+);
+
+/**
+ * @swagger
+ * /api/v1/coor/delete/{id}:
+ *   delete:
+ *     summary: Delete a coordinator by ID
+ *     tags: [Coordinator Management]
+ *     security:
+ *       - apiKeyAuth: []
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The coordinator ID
+ *     responses:
+ *       200:
+ *         description: Coordinator deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                 message:
+ *                   type: string
+ *                 code:
+ *                   type: integer
+ *       404:
+ *         description: Coordinator not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                 message:
+ *                   type: string
+ *                 code:
+ *                   type: integer
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                 message:
+ *                   type: string
+ *                 code:
+ *                   type: integer
+ */
+
+coorRoute.delete(
+    "/delete/:id",
+    apiKeyAuth,
+    CoorMiddleware.authToken,
+    CheckAccess(['delete'], ['users']),
+    coorController.delete
+);
+ 
+/**
+ * @swagger
+ * /api/v1/coor/show/{id}:
+ *   get:
+ *     summary: Get a coordinator by ID
+ *     tags: [Coordinator Management]
+ *     security:
+ *       - apiKeyAuth: []
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The coordinator ID
+ *     responses:
+ *       200:
+ *         description: Coordinator retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                 message:
+ *                   type: string
+ *                 code:
+ *                   type: integer
+ *       404:
+ *         description: Coordinator not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                 message:
+ *                   type: string
+ *                 code:
+ *                   type: integer
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                 message:
+ *                   type: string
+ *                 code:
+ *                   type: integer
+ */
+
+coorRoute.get(
+    "/show/:id",
+    apiKeyAuth,
+    CoorMiddleware.authToken,
+    coorController.show
+);
+
+/**
+ * @swagger
+ * /api/v1/coor/list/coop:
+ *   get:
+ *     summary: Get all coordinators per coop
+ *     tags: [Coordinator Management]
+ *     security:
+ *       - apiKeyAuth: []
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Coordinators retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                 message:
+ *                   type: string
+ *                 code:
+ *                   type: integer
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                 message:
+ *                   type: string
+ *                 code:
+ *                   type: integer
+ */
+
+coorRoute.get(
+    "/list/coop",
+    apiKeyAuth,
+    CoorMiddleware.authToken,
+    CheckAccess([], ['users']),
+    coorController.listPerCoop
+);
 
 export default coorRoute;

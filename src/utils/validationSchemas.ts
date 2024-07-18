@@ -62,3 +62,11 @@ export const coorSchemaCreate = z.object({
 export const assignRolesSchema = z.object({
   roleIds: z.array(z.number()).min(1, "At least one role is required")
 });
+
+export const coorSchemaUpdate = z.object({
+  first_name: z.string().optional(),
+  middle_name: z.string().optional(),
+  last_name: z.string().optional(),
+  contact_number: z.string().min(1, "Contact number is required").optional(),
+  address: z.string().optional(),
+});

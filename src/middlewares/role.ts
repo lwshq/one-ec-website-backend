@@ -22,7 +22,7 @@ const CheckAccess = (requiredPermissions: string[], requiredModules: string[]) =
     const coordinatorId = req.coorData.id;
 
     const coordinator = await prisma.coopCoordinator.findUnique({
-      where: { id: coordinatorId },
+      where: { id: coordinatorId, deleted_at: null },
     });
 
     if (!coordinator) {
@@ -39,7 +39,7 @@ const CheckAccess = (requiredPermissions: string[], requiredModules: string[]) =
     }
 
     const coordinatorRoles = await prisma.coordinatorRole.findMany({
-      where: { coordinatorId },
+      where: { coordinatorId, deletedAt: null },
       include: { role: true },
     });
 
