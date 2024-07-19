@@ -78,6 +78,11 @@ class Mailer {
     return await this.sendEmail(email, "Your Account Password", data, "accountPassword");
   }
 
+  async sendEmailSummary(email: string, kwhConsume: number, amount: number, rate: number) {
+    const data = { kwhConsume, amount, rate };
+    return await this.sendEmail(email, "Bill Summary", data, "billSummary");
+  }
+
   // async testSender(message: string, email: string) {
   //   const subject = "This is a sample sample email";
   //   const data = { message: message };

@@ -1,6 +1,6 @@
 import { CoopCoordinator, Account } from "@prisma/client";
 import prisma from "../../utils/client";
-import { assignRolesSchema, coorSchemaCreate } from "../../utils/validationSchemas";
+
 import crypto from "crypto";
 import bcrypt from "bcrypt";
 import Mailer from "../../utils/Mailer";
