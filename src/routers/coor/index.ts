@@ -864,4 +864,79 @@ coorRoute.get(
     coorController.listPerCoop
 );
 
+/**
+ * @swagger
+ * /api/v1/coor/search:
+ *   get:
+ *     summary: Search Coordinators
+ *     description: Search for coordinators based on a single query that checks multiple attributes such as first name, last name, middle name, email, contact number, and address.
+ *     tags: [Coordinator Management]
+ *     security:
+ *       - apiKeyAuth: []
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The search query to look for in multiple coordinator attributes.
+ *     responses:
+ *       200:
+ *         description: A list of coordinators that match the search criteria.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       first_name:
+ *                         type: string
+ *                       middle_name:
+ *                         type: string
+ *                       last_name:
+ *                         type: string
+ *                       email:
+ *                         type: string
+ *                       contact_number:
+ *                         type: string
+ *                       address:
+ *                         type: string
+ *                       coop_id:
+ *                         type: integer
+ *                 message:
+ *                   type: string
+ *                   example: "Coordinators retrieved successfully"
+ *                 code:
+ *                   type: integer
+ *                   example: 200
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Internal server error"
+ *                 code:
+ *                   type: integer
+ *                   example: 500
+ */
+
+
+coorRoute.get(
+    "/search",
+    apiKeyAuth,
+    CoorMiddleware.authToken,
+    CheckAccess([], ['users']),
+    coorController.search
+);
 export default coorRoute;

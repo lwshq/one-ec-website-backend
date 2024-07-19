@@ -17,6 +17,7 @@ import CoorListPaginateAction from "../../actions/coor/coorListPaginationAction"
 import CoorDeleteAction from "../../actions/coor/coorDeleteAction";
 import CoorShowAction from "../../actions/coor/coorShowAction";
 import CoorListPaginatePerCoopAction from "../../actions/coor/coorListPerCoopAction";
+import CoorSearchAction from "../../actions/coor/coorSearch";
 
 class CoorController {
   async auth(req: Request, res: Response) {
@@ -468,6 +469,49 @@ class CoorController {
         message: `Internal server error: ${error.message}`,
         code: 500
       });
+    }
+
+  }
+
+  async search(req: Request, res: Response) {
+    const coopId = req.coorData.coop_id
+    const page = parseInt(req.query.page as string) || 1;
+    const pageSize = parseInt(req.query.pageSize as string) || 10;
+    try {
+      const searchQuery = req.query.search as string;
+      const { coors, total } = await CoorSearchAction.execute(page, pageSize, searchQuery, coopId)
+
+      if (!coors) {
+        return AppResponse.sendError({
+          res: res,
+          data: null,
+          message: "No avalibale users",
+          code: 400
+        });
+      }
+      const totalPages = Math.ceil(total / pageSize);
+      return AppResponse.sendSuccess({
+        res: res,
+        data: {
+          coors,
+          pagination: {
+            total,
+            page,
+            pageSize,
+            totalPages,
+          }
+        },
+        message: "Good",
+        code: 200
+      })
+    } catch (error: any) {
+      return AppResponse.sendError({
+        res: res,
+        data: null,
+        message: `Internal server error ${error.message}`,
+        code: 500
+      });
+
     }
 
   }
