@@ -5,7 +5,7 @@ import AppResponse from "../../utils/AppResponse";
 import AuthAction from "../../actions/coor/authAction";
 import ForgotPasswordAction from "../../actions/coor/coorForgotPassword";
 import ChangePasswordAction from "../../actions/coor/coorChangePassword";
-import { requestResetSchema, passwordChangeSchema, resetPasswordSchema, assignRolesSchema, coorSchemaCreate, coorSchemaUpdate } from "../../utils/validationSchemas";
+import { requestResetSchema, passwordChangeSchema, resetPasswordSchema, coorSchemaUpdate, createCoordinatorSchema } from "../../utils/validationSchemas";
 import { User } from "../../types/custom";
 import bcrypt from "bcrypt";
 import prisma from "../../utils/client";
@@ -212,22 +212,14 @@ class CoorController {
   async create(req: Request, res: Response) {
     try {
 
-      const roleValidation = assignRolesSchema.safeParse(req.body);
-      if (!roleValidation.success) {
-        return AppResponse.sendError({
-          res,
-          data: null,
-          message: `Validation error: ${roleValidation.error.errors.map(e => e.message).join(", ")}`,
-          code: 400
-        });
-      }
+   
 
-      const dataValidation = coorSchemaCreate.safeParse(req.body.data);
-      if (!dataValidation.success) {
+      const validation = createCoordinatorSchema.safeParse(req.body);
+      if (!validation.success) {
         return AppResponse.sendError({
           res,
           data: null,
-          message: `Validation errorrxr: ${dataValidation.error.errors.map(e => e.message).join(", ")}`,
+          message: `Validation error: ${validation.error.errors.map(e => e.message).join(", ")}`,
           code: 400
         });
       }
@@ -286,22 +278,12 @@ class CoorController {
     try {
       const coorId = parseInt(req.params.id);
 
-      const roleValidation = assignRolesSchema.safeParse(req.body);
-      if (!roleValidation.success) {
+      const validation = createCoordinatorSchema.safeParse(req.body);
+      if (!validation.success) {
         return AppResponse.sendError({
           res,
           data: null,
-          message: `Validation error: ${roleValidation.error.errors.map(e => e.message).join(", ")}`,
-          code: 400
-        });
-      }
-
-      const dataValidation = coorSchemaUpdate.safeParse(req.body.data);
-      if (!dataValidation.success) {
-        return AppResponse.sendError({
-          res,
-          data: null,
-          message: `Validation error: ${dataValidation.error.errors.map(e => e.message).join(", ")}`,
+          message: `Validation error: ${validation.error.errors.map(e => e.message).join(", ")}`,
           code: 400
         });
       }
@@ -515,6 +497,8 @@ class CoorController {
     }
 
   }
+
+  
 
 }
 
