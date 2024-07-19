@@ -164,20 +164,32 @@ model Payment {
 
 model Bill {
   id              Int       @id @default(autoincrement())
-  meterAccountId  Int
+  meterAccountId  Int?
   coopId          Int
+  fromDate        DateTime
+  toDate          DateTime
+  nextDate        DateTime
+  cRead           Int
+  pRead           Int       @default(0)
+  kwhConsume      Float
+  distribution    Float     @default(0.00)
+  generation      Float     @default(0.00)
+  sLoss           Float     @default(0.00)
+  transmission    Float     @default(0.00)
+  subsidies       Float     @default(0.00)
+  gTax            Float     @default(0.00)
+  fitAll          Float     @default(0.00)
+  applied         Float     @default(0.00)
+  other           Float     @default(0.00)
+  rate            Float     @default(0.00)
   amount          Float
   dueDate         DateTime
-  kwhConsume      Float
-  rate            Float
-  status          String
-  issuedDate      DateTime
-  referenceNumber String
+  referenceNumber String?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   deletedAt       DateTime?
 
-  meterAccount MeterAccount @relation(fields: [meterAccountId], references: [id])
+  meterAccount MeterAccount? @relation(fields: [meterAccountId], references: [id])
   coop         Cooperative  @relation(fields: [coopId], references: [id])
   payments     Payment[]
 
