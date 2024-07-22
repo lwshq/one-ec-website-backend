@@ -60,6 +60,8 @@ class BillController {
     }
 
     async calculateBillDetails(req: Request, res: Response) {
+        const { id } = req.params;
+        const coopId = req.coorData.coop_id;
         try {
             const validation = SoaCreateAction.validate(req.body);
             if (!validation.success) {
@@ -71,7 +73,7 @@ class BillController {
                 });
             }
 
-            const billDetails = await SoaCreateAction.calculateDetails(req.body);
+            const billDetails = await SoaCreateAction.calculateDetails(req.body, coopId);
             return AppResponse.sendSuccess({
                 res,
                 data: billDetails,
