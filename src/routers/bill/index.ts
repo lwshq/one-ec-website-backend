@@ -41,6 +41,11 @@ const billController = new BillController();
  *                 format: date
  *                 description: The end date of the billing period
  *                 example: "2023-01-31"
+ *               dueDate:
+ *                 type: string
+ *                 format: date
+ *                 description: The end date of the billing period
+ *                 example: "2023-02-31"
  *               kwhConsume:
  *                 type: number
  *                 description: The total kWh consumed during the billing period
@@ -183,6 +188,11 @@ billRoute.post(
  *                 format: date
  *                 description: The end date of the billing period
  *                 example: "2023-01-31"
+ *               dueDate:
+ *                 type: string
+ *                 format: date
+ *                 description: The end date of the billing period
+ *                 example: "2023-02-31"
  *               kwhConsume:
  *                 type: number
  *                 description: The total kWh consumed during the billing period
@@ -230,6 +240,7 @@ billRoute.post(
  *             required:
  *               - fromDate
  *               - toDate
+ *               - dueDate
  *               - kwhConsume
  *               - rate
  *     responses:
