@@ -12,7 +12,8 @@ class Mailer {
     data?: any,
     templateName?: string,
     plainText?: string,
-    htmlContent?: string
+    htmlContent?: string,
+    attachments?: { filename: string, path: string }[]
   ): Promise<boolean> {
     return new Promise((resolve, reject) => {
       const transporter = nodemailer.createTransport({
@@ -44,6 +45,7 @@ class Mailer {
         subject: subject,
         text: plainText ?? undefined,
         html: htmlContent ?? content ?? undefined,
+        attachments: attachments
       };
 
       transporter.sendMail(mailOptions, (error: any, info: any) => {
@@ -78,10 +80,15 @@ class Mailer {
     return await this.sendEmail(email, "Your Account Password", data, "accountPassword");
   }
 
-  async sendEmailSummary(email: string, kwhConsume: number, amount: number, rate: number) {
+  async sendEmailSummary(email: string, kwhConsume: number, amount: number, rate: number, pdfPath: string) {
     const data = { kwhConsume, amount, rate };
-    return await this.sendEmail(email, "Bill Summary", data, "billSummary");
-  }
+    const attachments = [{
+        filename: 'Bill.pdf',
+        path: pdfPath
+    }];
+    return this.sendEmail(email, "Bill Summary", data, "billSummary", undefined, undefined, attachments);
+}
+
 
   // async testSender(message: string, email: string) {
   //   const subject = "This is a sample sample email";

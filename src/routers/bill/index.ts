@@ -10,13 +10,20 @@ const billController = new BillController();
 
 /**
  * @swagger
- * /api/v1/bill/create:
+ * /api/v1/bill/create/{id}:
  *   post:
  *     summary: Create a new Bill
  *     tags: [Bill]
  *     security:
  *       - apiKeyAuth: []
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: User ID to create a bill for and send an email summary.
  *     requestBody:
  *       required: true
  *       content:
@@ -119,6 +126,17 @@ const billController = new BillController();
  *                   type: string
  *                   description: Error message
  *                   example: "Validation error: Missing required fields"
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Error message
+ *                   example: "User not found"
  *       500:
  *         description: Internal server error
  *         content:
@@ -133,11 +151,156 @@ const billController = new BillController();
  */
 
 billRoute.post(
-    "/create",
+    "/create/:id",
     apiKeyAuth,
     CoorMiddleware.authToken,
     billController.createBill
 );
 
+/**
+ * @swagger
+ * /api/v1/bill/calculate:
+ *   post:
+ *     summary: Calculate Bill Details
+ *     tags: [Bill]
+ *     security:
+ *       - apiKeyAuth: []
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               fromDate:
+ *                 type: string
+ *                 format: date
+ *                 description: The start date of the billing period
+ *                 example: "2023-01-01"
+ *               toDate:
+ *                 type: string
+ *                 format: date
+ *                 description: The end date of the billing period
+ *                 example: "2023-01-31"
+ *               kwhConsume:
+ *                 type: number
+ *                 description: The total kWh consumed during the billing period
+ *                 example: 150.5
+ *               rate:
+ *                 type: number
+ *                 description: Rate per kWh
+ *                 example: 0.12
+ *               distribution:
+ *                 type: number
+ *                 description: Distribution charge
+ *                 example: 5.00
+ *               generation:
+ *                 type: number
+ *                 description: Generation charge
+ *                 example: 3.00
+ *               sLoss:
+ *                 type: number
+ *                 description: System loss charge
+ *                 example: 2.00
+ *               transmission:
+ *                 type: number
+ *                 description: Transmission charge
+ *                 example: 4.00
+ *               subsidies:
+ *                 type: number
+ *                 description: Subsidies
+ *                 example: 1.00
+ *               gTax:
+ *                 type: number
+ *                 description: Government tax
+ *                 example: 0.30
+ *               fitAll:
+ *                 type: number
+ *                 description: FIT-All charge
+ *                 example: 0.25
+ *               applied:
+ *                 type: number
+ *                 description: Other applied fees
+ *                 example: 0.40
+ *               other:
+ *                 type: number
+ *                 description: Any other charges
+ *                 example: 0.50
+ *             required:
+ *               - fromDate
+ *               - toDate
+ *               - kwhConsume
+ *               - rate
+ *     responses:
+ *       200:
+ *         description: Bill details calculated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Success message
+ *                   example: "Bill details calculated successfully"
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     totalAmount:
+ *                       type: number
+ *                       description: Total amount to be charged
+ *                     components:
+ *                       type: object
+ *                       description: Breakdown of individual components of the bill
+ *                       properties:
+ *                         distributionCharge:
+ *                           type: number
+ *                         generationCharge:
+ *                           type: number
+ *                         systemLossCharge:
+ *                           type: number
+ *                         transmissionCharge:
+ *                           type: number
+ *                         subsidiesCharge:
+ *                           type: number
+ *                         governmentTax:
+ *                           type: number
+ *                         fitAllCharge:
+ *                           type: number
+ *                         appliedCharge:
+ *                           type: number
+ *                         otherCharge:
+ *                           type: number
+ *       400:
+ *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Error message
+ *                   example: "Validation error: Missing required fields"
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Error message
+ *                   example: "Internal server error"
+ */
+
+billRoute.post(
+    "/calculate",
+    apiKeyAuth,
+    CoorMiddleware.authToken,
+    billController.calculateBillDetails
+);
 
 export default billRoute;

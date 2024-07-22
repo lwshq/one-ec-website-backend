@@ -3,11 +3,14 @@ import prisma from "../../utils/client";
 import { billCreationSchema } from "../../utils/validationSchemas";
 import { formatISO, parseISO } from "date-fns";
 import Mailer from "../../utils/Mailer";
+import UserShowAction from "../user/UserShowAction";
+import { parse } from "path";
 
 class SoaCreateAction {
     static async execute(
         data: Omit<Bill, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>,
-        coopId: number
+        coopId: number,
+        id: number,
     ) {
         const {  kwhConsume, rate } = data;
 
@@ -20,6 +23,8 @@ class SoaCreateAction {
                 id: 'desc'
             }
         });
+
+       
      
         const cRead = lastBill ? lastBill.cRead + kwhConsume : kwhConsume;
         const pRead = lastBill ? lastBill.cRead : 0;
@@ -51,12 +56,55 @@ class SoaCreateAction {
         });
         
     }
+    static async calculateDetails(data: Omit<Bill, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>) {
+        const { kwhConsume, rate } = data;
+
+        // Explicitly calculate each component
+        const distributionCharge = data.distribution;
+        const generationCharge = data.generation;
+        const systemLossCharge = data.sLoss;
+        const transmissionCharge = data.transmission;
+        const subsidiesCharge = data.subsidies;
+        const governmentTax = data.gTax;
+        const fitAllCharge = data.fitAll;
+        const appliedCharge = data.applied;
+        const otherCharge = data.other;
+
+        const totalAmount = (rate * kwhConsume) +
+                            distributionCharge +
+                            generationCharge +
+                            systemLossCharge +
+                            transmissionCharge +
+                            subsidiesCharge +
+                            governmentTax +
+                            fitAllCharge +
+                            appliedCharge +
+                            otherCharge;
+
+        return {
+            kwhConsume,
+            rate,
+            components: {
+                distributionCharge,
+                generationCharge,
+                systemLossCharge,
+                transmissionCharge,
+                subsidiesCharge,
+                governmentTax,
+                fitAllCharge,
+                appliedCharge,
+                otherCharge
+            },
+            totalAmount
+        };
+    }
     
     static validate(
         data: Omit <Bill, 'id' | 'created_at' | 'updated_at' | 'deleted_at'>
     ) { 
         return billCreationSchema.safeParse(data);
     }
+    
 }
 
 export default SoaCreateAction;
