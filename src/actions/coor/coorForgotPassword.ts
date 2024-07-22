@@ -9,13 +9,13 @@ config();
 
 class ForgotPasswordAction {
     static async requestReset(email: string) {
-        const admin = await prisma.admin.findUnique({
+        const coor = await prisma.coopCoordinator.findUnique({
             where: { email },
             include: { account: true },
         });
 
-        if (!admin) {
-            throw new Error("Email does not exist");
+        if (!coor) {
+            throw new Error("Coordinator not found");
         }
 
         const token = crypto.randomBytes(32).toString("hex");
@@ -23,7 +23,7 @@ class ForgotPasswordAction {
 
         await prisma.passwordReset.create({
             data: {
-                adminId: admin.id,
+                coorId: coor.id,
                 token,
                 expiresAt,
             },
@@ -31,14 +31,14 @@ class ForgotPasswordAction {
 
         const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
         const mailer = new Mailer();
-        await mailer.sendPasswordResetLink(admin.email, resetLink);
+        await mailer.sendPasswordResetLink(coor.email, resetLink);
         return true;
     }
 
     static async resetPassword(token: string, newPassword: string) {
         const resetRequest = await prisma.passwordReset.findFirst({
             where: { token, deletedAt: null },
-            include: { admin: true },
+            include: { coopCoor: true },
         });
 
         if (!resetRequest || resetRequest.expiresAt < new Date()) {
@@ -47,7 +47,7 @@ class ForgotPasswordAction {
 
         const hashedPassword = bcrypt.hashSync(newPassword, 10);
         await prisma.account.updateMany({
-            where: { admin_id: resetRequest.adminId },
+            where: { coordinator_id: resetRequest.coorId },
             data: { password: hashedPassword },
         });
 

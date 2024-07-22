@@ -1,46 +1,37 @@
 import { Request, Response, ErrorRequestHandler } from "express";
-import CoopCreateAction from "../../actions/coop/coopCreateAction";
+import AppError from "../../utils/AppError";
 import AppResponse from "../../utils/AppResponse";
-import CoopUpdateAction from "../../actions/coop/coopUpdateAction";
-import CoopShowAction from "../../actions/coop/coopShowAction";
-import CoopListAction from "../../actions/coop/coopListAction";
-import CoopDeleteAction from "../../actions/coop/coopDeleteAction";
 import prisma from "../../utils/client";
+import RoleCreateAction from "../../actions/role/roleCreateAction";
+import RoleUpdateAction from "../../actions/role/roleUpdateAction";
+import { ZodError } from "zod";
+import { roleSchemaCreate } from "../../utils/validationSchemas";
+import RoleShowAction from "../../actions/role/roleShowAction";
+import RoleListPaginateAction from "../../actions/role/roleListPaginateAction";
+import RoleDeleteAction from "../../actions/role/roleDeleteAction";
 
-class CoopController {
-    async create (req: Request, res: Response) {
+class RoleController {
+
+    async create(req: Request, res: Response) {
+
         try {
-            const validation = CoopCreateAction.validate(req.body);
+            const validation = RoleCreateAction.validate(req.body);
 
             if (!validation.success) {
                 return AppResponse.sendError({
                     res: res,
                     data: null,
-                    message: `Validation error: ${validation.error.errors.map((err) => err.message).join(", ")}`,
+                    message: `Validation error: ${(validation.error as ZodError).errors.map((err) => err.message).join(", ")}`,
                     code: 400
-                });
+                })
             }
 
-            
-           const existingCoordinator = await prisma.coopCoordinator.findUnique({
-                where: { email: req.body.coordinator.email }
-            });
-
-            if (existingCoordinator) {
-                return AppResponse.sendError({
-                    res: res,
-                    data: null,
-                    message: "Email already exists",
-                    code: 400
-                });
-            }
-
-            const { coop, coordinator, role } = await CoopCreateAction.execute(req.body);
+            const coop = await RoleCreateAction.execute(req.body);
 
             return AppResponse.sendSuccess({
                 res: res,
-                data: { coop, coordinator, role },
-                message: "Cooperative created successfully",
+                data: coop,
+                message: "Role created succesfully",
                 code: 201
             });
         } catch (error: any) {
@@ -51,13 +42,13 @@ class CoopController {
                 code: 500
             });
         }
-    }
 
+    }
 
     async update(req: Request, res: Response) {
         try {
             const { id } = req.params;
-            const validation = CoopUpdateAction.validate(req.body);
+            const validation = RoleUpdateAction.validate(req.body);
 
             if (!validation.success) {
                 return AppResponse.sendError({
@@ -68,25 +59,25 @@ class CoopController {
                 });
             }
 
-            const coopShow = await CoopShowAction.execute(parseInt(id));
+            const roleShow = await RoleShowAction.execute(parseInt(id));
 
-            if (!coopShow) {
+            if (!roleShow) {
                 return AppResponse.sendError({
                     res: res,
                     data: null,
-                    message: "Coop not found",
+                    message: "Role not found",
                     code: 404,
                 })
             }
 
 
-            const coop = await CoopUpdateAction.execute(parseInt(id), req.body);
+            const role = await RoleUpdateAction.execute(parseInt(id), req.body);
 
 
             return AppResponse.sendSuccess({
                 res: res,
-                data: coop,
-                message: "Coordinator updated successfully",
+                data: role,
+                message: "Role updated successfully",
                 code: 200,
             })
 
@@ -103,21 +94,21 @@ class CoopController {
     async show(req: Request, res: Response) {
         try {
             const { id } = req.params;
-            const coop = await CoopShowAction.execute(parseInt(id))
+            const role = await RoleShowAction.execute(parseInt(id))
 
-            if (!coop) {
+            if (!role) {
                 return AppResponse.sendError({
                     res: res,
                     data: null,
-                    message: "Coop not found or deleted",
+                    message: "Role not found or deleted",
                     code: 404
                 })
             }
 
             return AppResponse.sendSuccess({
                 res: res,
-                data: coop,
-                message: "Coop retrieved successfully",
+                data: role,
+                message: "Role retrieved successfully",
                 code: 200
             })
         } catch (error: any) {
@@ -134,13 +125,13 @@ class CoopController {
         const page = parseInt(req.query.page as string) || 1;
         const pageSize = parseInt(req.query.pageSize as string) || 10;
         try {
-            const { coops, total } = await CoopListAction.execute(page, pageSize)
+            const { roles, total } = await RoleListPaginateAction.execute(page, pageSize)
 
-            if (!coops) {
+            if (!roles) {
                 return AppResponse.sendError({
                     res: res,
                     data: null,
-                    message: "No coop available",
+                    message: "No role available",
                     code: 404,
                 })
             }
@@ -150,7 +141,7 @@ class CoopController {
             return AppResponse.sendSuccess({
                 res: res,
                 data: {
-                    coops,
+                    roles,
                     pagination: {
                         total,
                         page,
@@ -158,7 +149,7 @@ class CoopController {
                         totalPages,
                     }
                 },
-                message: "Coops retrieved successfully",
+                message: "Roles retrieved successfully",
                 code: 200,
             })
         } catch (error: any) {
@@ -176,21 +167,21 @@ class CoopController {
 
         try {
             const { id } = req.params;
-            const coop = await CoopDeleteAction.execute(parseInt(id));
+            const role = await RoleDeleteAction.execute(parseInt(id));
 
-            if (!coop) {
+            if (!role) {
                 return AppResponse.sendError({
                     res: res,
                     data: null,
-                    message: "Coop not found",
+                    message: "Role not found",
                     code: 404
                 })
             }
 
             return AppResponse.sendSuccess({
                 res: res,
-                data: coop,
-                message: "Coop deleted successfully",
+                data: role,
+                message: "Role deleted successfully",
                 code: 200
             });
         } catch (error: any) {
@@ -205,6 +196,7 @@ class CoopController {
 
     }
 
+
 }
 
-export default CoopController;
+export default RoleController;

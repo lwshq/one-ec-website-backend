@@ -11,12 +11,6 @@ const adminController = new AdminController();
 
 /**
  * @swagger
- * tags:
- *   name: Admin Authentication
- *   description: This API will allow the user to log in to the system
- */
-/**
- * @swagger
  * /api/v1/admin/authenticate:
  *   post:
  *     summary: Authentication API
@@ -25,6 +19,7 @@ const adminController = new AdminController();
  *     tags: [Admin Authentication]
  *     security:
  *       - apiKeyAuth: []
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -35,11 +30,11 @@ const adminController = new AdminController();
  *               email:
  *                 type: string
  *                 description: Email is required
- *                 example: sampleemail@gmail.com
+ *                 example: sacdalernest02@gmail.com
  *               password:
  *                 type: string
  *                 description: Password is required
- *                 example: pass123
+ *                 example: password
  *             required:
  *               - email
  *               - password
@@ -310,6 +305,60 @@ adminRoute.put("/change-password",
     apiKeyAuth,
     AdminMiddleware.authToken,
     adminController.changePassword);
+
+
+/**
+ * @swagger
+ * /api/v1/admin/logout:
+ *   post:
+ *     summary: Logout API
+ *     description: |
+ *       This endpoint allows the admin to log out.
+ *     tags: [Admin Authentication]
+ *     security:
+ *       - apiKeyAuth: []
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: false
+ *     responses:
+ *       '200':
+ *         description: Logout successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Logout successful
+ *                 response:
+ *                   type: string
+ *                   example: Success
+ *                 code:
+ *                   type: integer
+ *                   example: 200
+ *       '401':
+ *         description: Unauthorized access, invalid token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Unauthorized, please login again
+ *                 response:
+ *                   type: string
+ *                   example: Error
+ *                 code:
+ *                   type: integer
+ *                   example: 401
+ */
+
+adminRoute.post("/logout",
+    apiKeyAuth,
+    AdminMiddleware.authToken,
+    adminController.logout);
 
 
 export default adminRoute;

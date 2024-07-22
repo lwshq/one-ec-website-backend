@@ -32,18 +32,18 @@ export type User = {
 
 export type CoopCoordinator = {
     id: Generated<number>;
-    first_name: string;
+    first_name: string | null;
     middle_name: string | null;
-    last_name: string;
-    birthdate: Timestamp;
+    last_name: string | null;
     email: string;
+    address: string;
     contact_number: string;
     coop_id: Generated<number>;
     role: Generated<string | null>;
     created_at: Generated<Timestamp | null>;
     updated_at: Timestamp | null;
     deleted_at: Timestamp | null;
-    status: Generated<string>;
+
 };
 
 export type Admin = {

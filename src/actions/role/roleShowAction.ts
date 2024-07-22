@@ -1,8 +1,8 @@
 import prisma from "../../utils/client";
 
-class CoopShowAction {
+class RoleShowAction {
     static async execute(id: number) {
-        return await prisma.cooperative.findUnique({
+        return await prisma.role.findUnique({
             where: { 
                 id,
                 deletedAt: null,
@@ -11,4 +11,4 @@ class CoopShowAction {
     }
 }
 
-export default CoopShowAction;
+export default RoleShowAction;

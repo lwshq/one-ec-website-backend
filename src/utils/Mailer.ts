@@ -12,7 +12,8 @@ class Mailer {
     data?: any,
     templateName?: string,
     plainText?: string,
-    htmlContent?: string
+    htmlContent?: string,
+    attachments?: { filename: string, path: string }[]
   ): Promise<boolean> {
     return new Promise((resolve, reject) => {
       const transporter = nodemailer.createTransport({
@@ -44,6 +45,7 @@ class Mailer {
         subject: subject,
         text: plainText ?? undefined,
         html: htmlContent ?? content ?? undefined,
+        attachments: attachments
       };
 
       transporter.sendMail(mailOptions, (error: any, info: any) => {
@@ -68,10 +70,25 @@ class Mailer {
     return await this.sendEmail(email, "Password Reset Request", data, "passwordReset");
   }
 
-  async sendPasswordChangeNotification(email: string, name: string) {
+  async sendPasswordChangeNotification(email: string, name: string | null) {
     const data = { name };
     return await this.sendEmail(email, "Password Changed", data, "passwordChanged");
   }
+
+  async sendAccountPassword(email: string, password: string, userEmail: string) {
+    const data = { password, email: userEmail };
+    return await this.sendEmail(email, "Your Account Password", data, "accountPassword");
+  }
+
+  async sendEmailSummary(email: string, kwhConsume: number, amount: number, rate: number, pdfPath: string) {
+    const data = { kwhConsume, amount, rate };
+    const attachments = [{
+        filename: 'Bill.pdf',
+        path: pdfPath
+    }];
+    return this.sendEmail(email, "Bill Summary", data, "billSummary", undefined, undefined, attachments);
+}
+
 
   // async testSender(message: string, email: string) {
   //   const subject = "This is a sample sample email";

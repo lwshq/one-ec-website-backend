@@ -11,6 +11,7 @@ enum UserRole {
   USER
   COORDINATOR
   ADMIN
+  COOPSUPERADMIN
 }
 
 model Account {
@@ -53,24 +54,26 @@ model User {
 }
 
 model CoopCoordinator {
-  id             Int       @id @default(autoincrement())
-  first_name     String
-  middle_name    String?
-  last_name      String
-  birthdate      DateTime
-  email          String    @unique
-  contact_number String
-  coop_id        Int
-  role           UserRole? @default(COORDINATOR)
-  created_at     DateTime? @default(now())
-  updated_at     DateTime? @updatedAt
-  deleted_at     DateTime?
-  status         String
+  id               Int       @id @default(autoincrement())
+  first_name       String?
+  middle_name      String?
+  last_name        String?
+  email            String    @unique
+  contact_number   String
+  coop_id          Int
+  address          String?
+  role             UserRole? @default(COORDINATOR)
+  loginAttempts    Int       @default(0)
+  lastLoginAttempt DateTime?
+  created_at       DateTime? @default(now())
+  updated_at       DateTime? @updatedAt
+  deleted_at       DateTime?
 
   coop          Cooperative       @relation(fields: [coop_id], references: [id])
   account       Account[]
   roles         CoordinatorRole[]
   PasswordReset PasswordReset[]
+  AdminLog      AdminLog[]
 
   @@map("coordinator")
 }
@@ -98,6 +101,7 @@ model Cooperative {
   id          Int       @id @default(autoincrement())
   name        String
   description String
+  address     String
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   deletedAt   DateTime?
@@ -160,20 +164,31 @@ model Payment {
 
 model Bill {
   id              Int       @id @default(autoincrement())
-  meterAccountId  Int
+  meterAccountId  Int?
   coopId          Int
-  amount          Float
-  dueDate         DateTime
+  fromDate        DateTime
+  toDate          DateTime
+  nextDate        DateTime
+  cRead           Int
+  pRead           Int       @default(0)
   kwhConsume      Float
-  rate            Float
-  status          String
-  issuedDate      DateTime
-  referenceNumber String
+  distribution    Float     @default(0.00)
+  generation      Float     @default(0.00)
+  sLoss           Float     @default(0.00)
+  transmission    Float     @default(0.00)
+  subsidies       Float     @default(0.00)
+  gTax            Float     @default(0.00)
+  fitAll          Float     @default(0.00)
+  applied         Float     @default(0.00)
+  other           Float     @default(0.00)
+  rate            Float     @default(0.00)
+  amount          Float
+  referenceNumber String?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   deletedAt       DateTime?
 
-  meterAccount MeterAccount @relation(fields: [meterAccountId], references: [id])
+  meterAccount MeterAccount? @relation(fields: [meterAccountId], references: [id])
   coop         Cooperative  @relation(fields: [coopId], references: [id])
   payments     Payment[]
 
@@ -256,17 +271,19 @@ model CoordinatorRole {
 }
 
 model AdminLog {
-  id       Int      @id @default(autoincrement())
-  admin_id Int
-  name     String
-  email    String
-  date     DateTime @default(now())
-  time     String
-  activity String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id        Int              @id @default(autoincrement())
+  admin_id  Int?
+  coor_id   Int?
+  name      String
+  email     String
+  date      DateTime         @default(now())
+  time      String
+  activity  String
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
   deletedAt DateTime?
-  admin Admin @relation(fields: [admin_id], references: [id])
+  admin     Admin?           @relation(fields: [admin_id], references: [id])
+  coor      CoopCoordinator? @relation(fields: [coor_id], references: [id])
 
   @@map("admin_log")
 }
