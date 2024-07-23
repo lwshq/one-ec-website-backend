@@ -8,7 +8,15 @@ class CoorUpdateAction {
         roleIds: number[]
     ) {
         return await prisma.$transaction(async (tx) => {
-            // Validate all role IDs exist
+
+            const coordinatorExists = await tx.coopCoordinator.findUnique({
+                where: { id: coorId }
+            });
+
+            if (!coordinatorExists) {
+                throw new Error("Coordinator not found.");
+            }
+
             const existingRoles = await tx.role.findMany({
                 where: {
                     id: { in: roleIds },
@@ -20,7 +28,6 @@ class CoorUpdateAction {
                 throw new Error("One or more roles do not exist.");
             }
 
-            // Find existing role assignments
             const existingRoleAssignments = await tx.coordinatorRole.findMany({
                 where: {
                     coordinatorId: coorId,
@@ -30,7 +37,6 @@ class CoorUpdateAction {
 
             const existingRoleIds = existingRoleAssignments.map(role => role.roleId);
 
-            // Soft delete roles not currently needed
             await tx.coordinatorRole.updateMany({
                 where: {
                     coordinatorId: coorId,
@@ -41,10 +47,8 @@ class CoorUpdateAction {
                 }
             });
 
-            // Reactivate existing roles or create new role assignments if necessary
             await Promise.all(roleIds.map(async (roleId) => {
                 if (!existingRoleIds.includes(roleId)) {
-                    // Create new role assignments if not already existing
                     await tx.coordinatorRole.create({
                         data: {
                             coordinatorId: coorId,
@@ -52,7 +56,6 @@ class CoorUpdateAction {
                         }
                     });
                 } else {
-                    // Reactivate the role if it was previously deleted
                     await tx.coordinatorRole.updateMany({
                         where: {
                             coordinatorId: coorId,
@@ -64,7 +67,6 @@ class CoorUpdateAction {
                 }
             }));
 
-            // Update coordinator details
             const coordinatorUpdate = await tx.coopCoordinator.update({
                 where: { id: coorId },
                 data: {

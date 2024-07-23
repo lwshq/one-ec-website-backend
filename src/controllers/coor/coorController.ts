@@ -289,6 +289,7 @@ class CoorController {
         });
       }
 
+
       const { data, roleIds } = req.body;
 
       const result = await CoorUpdateAction.execute(coordinatorId, data, roleIds || []);
@@ -299,14 +300,22 @@ class CoorController {
         code: 200
       });
     } catch (error: any) {
-      if (error.message == "Coordinator not found") {
+      if (error.message == "One or more roles do not exist") {
         return AppResponse.sendError({
           res,
           data: null,
           message: error.message,
           code: 400
         })
-      } else {
+      } else if (error.message == "Coordinator not found.") {
+        return AppResponse.sendError({
+          res,
+          data: null,
+          message: error.message,
+          code: 400
+        })
+      }
+      else {
         return AppResponse.sendError({
           res,
           data: null,
