@@ -77,6 +77,9 @@ export const billCreationSchema = z.object({
   toDate: z.string()
     .refine(val => !isNaN(Date.parse(val)), "Invalid date format for 'toDate'. Expected format: YYYY-MM-DD")
     .transform(val => new Date(val)),
+  dueDate: z.string()
+    .refine(val => !isNaN(Date.parse(val)), "Invalid date format for 'toDate'. Expected format: YYYY-MM-DD")
+    .transform(val => new Date(val)),
   kwhConsume: z.number()
     .positive("kWh consumption must be a positive number"),
   rate: z.number()
