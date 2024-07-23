@@ -164,13 +164,20 @@ billRoute.post(
 
 /**
  * @swagger
- * /api/v1/bill/calculate:
+ * /api/v1/bill/calculate/{id}:
  *   post:
  *     summary: Calculate Bill Details
  *     tags: [Bill]
  *     security:
  *       - apiKeyAuth: []
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: User ID to calculate.
  *     requestBody:
  *       required: true
  *       content:
@@ -308,7 +315,7 @@ billRoute.post(
  */
 
 billRoute.post(
-    "/calculate",
+    "/calculate/:id",
     apiKeyAuth,
     CoorMiddleware.authToken,
     billController.calculateBillDetails
