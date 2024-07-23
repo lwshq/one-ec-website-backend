@@ -5,7 +5,7 @@ import AppResponse from "../../utils/AppResponse";
 import AuthAction from "../../actions/coor/authAction";
 import ForgotPasswordAction from "../../actions/coor/coorForgotPassword";
 import ChangePasswordAction from "../../actions/coor/coorChangePassword";
-import { requestResetSchema, passwordChangeSchema, resetPasswordSchema, coorSchemaUpdate, createCoordinatorSchema } from "../../utils/validationSchemas";
+import { requestResetSchema, passwordChangeSchema, resetPasswordSchema, coorSchemaUpdate, createCoordinatorSchema, updateCoordinatorSchema } from "../../utils/validationSchemas";
 import { User } from "../../types/custom";
 import bcrypt from "bcrypt";
 import prisma from "../../utils/client";
@@ -212,7 +212,7 @@ class CoorController {
   async create(req: Request, res: Response) {
     try {
 
-   
+
 
       const validation = createCoordinatorSchema.safeParse(req.body);
       if (!validation.success) {
@@ -274,11 +274,12 @@ class CoorController {
     }
   }
 
+
   async update(req: Request, res: Response) {
     try {
-      const coorId = parseInt(req.params.id);
+      const coordinatorId = parseInt(req.params.id);
+      const validation = updateCoordinatorSchema.safeParse(req.body);
 
-      const validation = createCoordinatorSchema.safeParse(req.body);
       if (!validation.success) {
         return AppResponse.sendError({
           res,
@@ -288,24 +289,44 @@ class CoorController {
         });
       }
 
+
       const { data, roleIds } = req.body;
 
-      const result = await CoorUpdateAction.execute(coorId, data, roleIds)
+      const result = await CoorUpdateAction.execute(coordinatorId, data, roleIds || []);
       return AppResponse.sendSuccess({
         res,
-        data: result,
+        data: { coordinator: result.coordinatorUpdate },
         message: "Coordinator updated successfully",
         code: 200
-      })
+      });
     } catch (error: any) {
-      return AppResponse.sendError({
-        res: res,
-        data: null,
-        message: `Internal server error ${error.message}`,
-        code: 500
-      })
+      if (error.message == "One or more roles do not exist") {
+        return AppResponse.sendError({
+          res,
+          data: null,
+          message: error.message,
+          code: 400
+        })
+      } else if (error.message == "Coordinator not found.") {
+        return AppResponse.sendError({
+          res,
+          data: null,
+          message: error.message,
+          code: 400
+        })
+      }
+      else {
+        return AppResponse.sendError({
+          res,
+          data: null,
+          message: `Internal server error: ${error.message}`,
+          code: 500
+        });
+      }
+
     }
   }
+
 
   async list(req: Request, res: Response) {
     const page = parseInt(req.query.page as string) || 1;
@@ -498,7 +519,7 @@ class CoorController {
 
   }
 
-  
+
 
 }
 
