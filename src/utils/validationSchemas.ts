@@ -100,3 +100,15 @@ export const billCreationSchema = z.object({
   other: z.number()
     .default(0)
 });
+
+export const updateCoordinatorSchema = z.object({
+  data: z.object({
+    first_name: z.string().optional(),
+    middle_name: z.string().optional(),
+    last_name: z.string().optional(),
+    email: z.string().email().optional().or(z.string().min(1, "Email is required").optional()),
+    contact_number: z.string().min(1, "Contact number is required").optional(),
+    address: z.string().optional(),
+  }),
+  roleIds: z.array(z.number()).min(1, "At least one role is required").optional()
+});
