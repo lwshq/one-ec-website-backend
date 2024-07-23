@@ -184,6 +184,7 @@ model Bill {
   rate            Float     @default(0.00)
   amount          Float
   referenceNumber String?
+  dueDate         DateTime  
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   deletedAt       DateTime?

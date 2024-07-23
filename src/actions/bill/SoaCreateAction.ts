@@ -12,7 +12,7 @@ class SoaCreateAction {
         coopId: number,
         id: number,
     ) {
-        const {  kwhConsume, rate } = data;
+        const { kwhConsume, rate } = data;
 
         const lastBill = await prisma.bill.findFirst({
             where: {
@@ -24,22 +24,22 @@ class SoaCreateAction {
             }
         });
 
-       
-     
+
+
         const cRead = lastBill ? lastBill.cRead + kwhConsume : kwhConsume;
         const pRead = lastBill ? lastBill.cRead : 0;
 
-       
+
         const amount = rate * kwhConsume + data.distribution + data.generation + data.sLoss +
-                       data.transmission + data.subsidies + data.gTax + data.fitAll + data.applied + data.other;
-                       const fromDate = new Date(); 
-                       const toDate = new Date(); 
-                       const nextDate = new Date();
-                       const dueDate  =new Date();
-                       const formattedNextDate = formatISO(nextDate)
-                       const formattedFromDate = formatISO(fromDate);
-                       const formattedToDate = formatISO(toDate);
-                       const formattedDueDate = formatISO(dueDate)
+            data.transmission + data.subsidies + data.gTax + data.fitAll + data.applied + data.other;
+        const fromDate = new Date();
+        const toDate = new Date();
+        const nextDate = new Date();
+        const dueDate = new Date();
+        const formattedNextDate = formatISO(nextDate)
+        const formattedFromDate = formatISO(fromDate);
+        const formattedToDate = formatISO(toDate);
+        const formattedDueDate = formatISO(dueDate)
         return await prisma.bill.create({
             data: {
                 ...data,
@@ -52,14 +52,26 @@ class SoaCreateAction {
                 nextDate: formattedNextDate,
                 dueDate: formattedDueDate
             }
-            
-        });
-        
-    }
-    static async calculateDetails(data: Omit<Bill, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>) {
-        const { kwhConsume, rate } = data;
 
-        // Explicitly calculate each component
+        });
+
+    }
+    static async calculateDetails(data: Omit<Bill, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>,
+        coop_id: number
+    ) {
+        const { kwhConsume, rate } = data;
+        const lastBill = await prisma.bill.findFirst({
+            where: {
+                coopId: coop_id,
+                deletedAt: null
+            },
+            orderBy: {
+                id: 'desc'
+            }
+        });
+
+
+
         const distributionCharge = data.distribution;
         const generationCharge = data.generation;
         const systemLossCharge = data.sLoss;
@@ -71,19 +83,23 @@ class SoaCreateAction {
         const otherCharge = data.other;
 
         const totalAmount = (rate * kwhConsume) +
-                            distributionCharge +
-                            generationCharge +
-                            systemLossCharge +
-                            transmissionCharge +
-                            subsidiesCharge +
-                            governmentTax +
-                            fitAllCharge +
-                            appliedCharge +
-                            otherCharge;
+            distributionCharge +
+            generationCharge +
+            systemLossCharge +
+            transmissionCharge +
+            subsidiesCharge +
+            governmentTax +
+            fitAllCharge +
+            appliedCharge +
+            otherCharge;
+        const cRead = lastBill ? lastBill.cRead + kwhConsume : kwhConsume;
+        const pRead = lastBill ? lastBill.cRead : 0;
 
         return {
             kwhConsume,
             rate,
+            cRead,
+            pRead,
             components: {
                 distributionCharge,
                 generationCharge,
@@ -98,13 +114,13 @@ class SoaCreateAction {
             totalAmount
         };
     }
-    
+
     static validate(
-        data: Omit <Bill, 'id' | 'created_at' | 'updated_at' | 'deleted_at'>
-    ) { 
+        data: Omit<Bill, 'id' | 'created_at' | 'updated_at' | 'deleted_at'>
+    ) {
         return billCreationSchema.safeParse(data);
     }
-    
+
 }
 
 export default SoaCreateAction;
