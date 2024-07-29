@@ -14,6 +14,12 @@ enum UserRole {
   COOPSUPERADMIN
 }
 
+enum Status {
+  PENDING
+  APPROVED
+  DECLINED
+}
+
 model Account {
   id             Int       @id @default(autoincrement())
   password       String
@@ -44,11 +50,11 @@ model User {
   updated_at     DateTime? @updatedAt
   deleted_at     DateTime?
 
-  addresses     UserAddress[]
-  payments      Payment[]
-  account       Account[]
-  MeterAccount  MeterAccount[]
-  PasswordReset PasswordReset[]
+  address         UserAddress[]
+  payments        Payment[]
+  account         Account[]
+  PasswordReset   PasswordReset[]
+  accountRegistry AccountRegistry[]
 
   @@map("user")
 }
@@ -103,15 +109,12 @@ model Cooperative {
   description String
   address     String
   createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  updatedAt   DateTime? @updatedAt
   deletedAt   DateTime?
 
   coordinators CoopCoordinator[]
   banks        CoopBank[]
   meters       MeterAccount[]
-  bills        Bill[]
-  settlements  Settlement[]
-  Payment      Payment[]
 
   @@map("cooperative")
 }
@@ -122,7 +125,7 @@ model CoopBank {
   name          String
   accountNumber String
   createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  updatedAt     DateTime? @updatedAt
   deletedAt     DateTime?
 
   cooperative Cooperative @relation(fields: [cooperativeId], references: [id])
@@ -135,7 +138,7 @@ model UserAddress {
   userId    Int
   address   String
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  updatedAt DateTime? @updatedAt
   deletedAt DateTime?
 
   user User @relation(fields: [userId], references: [id])
@@ -147,87 +150,98 @@ model Payment {
   id        Int       @id @default(autoincrement())
   userId    Int
   billId    Int
-  coopId    Int
   amount    Float
-  date      DateTime
+  medium    String?
   status    String
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  updatedAt DateTime? @updatedAt
   deletedAt DateTime?
 
-  user User        @relation(fields: [userId], references: [id])
-  bill Bill        @relation(fields: [billId], references: [id])
-  coop Cooperative @relation(fields: [coopId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+  bill Bill @relation(fields: [billId], references: [id])
 
   @@map("payment")
 }
 
 model Bill {
-  id              Int       @id @default(autoincrement())
-  meterAccountId  Int?
-  coopId          Int
+  id              Int          @id @default(autoincrement())
+  meterAccountId  Int
   fromDate        DateTime
   toDate          DateTime
   nextDate        DateTime
-  cRead           Int
-  pRead           Int       @default(0)
+  cRead           Float
+  pRead           Float        @default(0.00)
   kwhConsume      Float
-  distribution    Float     @default(0.00)
-  generation      Float     @default(0.00)
-  sLoss           Float     @default(0.00)
-  transmission    Float     @default(0.00)
-  subsidies       Float     @default(0.00)
-  gTax            Float     @default(0.00)
-  fitAll          Float     @default(0.00)
-  applied         Float     @default(0.00)
-  other           Float     @default(0.00)
-  rate            Float     @default(0.00)
+  distribution    Float        @default(0.00)
+  generation      Float        @default(0.00)
+  sLoss           Float        @default(0.00)
+  transmission    Float        @default(0.00)
+  subsidies       Float        @default(0.00)
+  gTax            Float        @default(0.00)
+  fitAll          Float        @default(0.00)
+  applied         Float        @default(0.00)
+  other           Float        @default(0.00)
+  rate            Float        @default(0.00)
   amount          Float
-  referenceNumber String?
-  dueDate         DateTime  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  referenceNumber String
+  dueDate         DateTime
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime?    @updatedAt
   deletedAt       DateTime?
-
-  meterAccount MeterAccount? @relation(fields: [meterAccountId], references: [id])
-  coop         Cooperative  @relation(fields: [coopId], references: [id])
-  payments     Payment[]
+  prevBill        Float?       @default(0.00)
+  meterAccount    MeterAccount @relation(fields: [meterAccountId], references: [id])
+  payments        Payment[]
 
   @@map("bill")
 }
 
 model MeterAccount {
-  id        Int       @id @default(autoincrement())
-  meterId   String
-  userId    Int
-  coopId    Int
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
-
-  user         User           @relation(fields: [userId], references: [id])
-  coop         Cooperative    @relation(fields: [coopId], references: [id])
-  Bill         Bill[]
-  MeterAddress MeterAddress[]
+  id               Int               @id @default(autoincrement())
+  coopId           Int
+  meterNumber      Int
+  meterAccountName String
+  meterAddress     String
+  customerType     String?
+  meterActivated   Boolean           @default(false)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime?         @updatedAt
+  deletedAt        DateTime?
+  coop             Cooperative       @relation(fields: [coopId], references: [id])
+  Bill             Bill[]
+  accountRegistry  AccountRegistry[]
 
   @@map("meter_account")
 }
 
-model MeterAddress {
-  id            Int       @id @default(autoincrement())
-  meterId       Int
-  meterProvince String
-  meterTown     String
-  meterBrgy     String
-  meterSt       String
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  deletedAt     DateTime?
+model AccountRegistry {
+  id           Int          @id @default(autoincrement())
+  userId       Int
+  meterId      Int
+  status       Status       @default(PENDING)
+  createdAt    DateTime?    @default(now())
+  updatedAt    DateTime?    @updatedAt
+  deletedAt    DateTime?
+  user         User         @relation(references: [id], fields: [userId])
+  meterAccount MeterAccount @relation(references: [id], fields: [meterId])
 
-  meter MeterAccount @relation(fields: [meterId], references: [id])
-
-  @@map("meter_address")
+  @@map("accountRegistry")
 }
+
+// model MeterAddress {
+//   id            Int       @id @default(autoincrement())
+//   meterId       Int
+//   meterProvince String
+//   meterTown     String
+//   meterBrgy     String
+//   meterSt       String
+//   createdAt     DateTime  @default(now())
+//   updatedAt     DateTime  @updatedAt
+//   deletedAt     DateTime?
+
+//   meter MeterAccount @relation(fields: [meterId], references: [id])
+
+//   @@map("meter_address")
+// }
 
 model Settlement {
   id         Int       @id @default(autoincrement())
@@ -237,10 +251,10 @@ model Settlement {
   netAmount  Float
   date       DateTime
   createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  updatedAt  DateTime? @updatedAt
   deletedAt  DateTime?
 
-  coop Cooperative @relation(fields: [coopId], references: [id])
+  // coop Cooperative @relation(fields: [coopId], references: [id])
 
   @@map("settlement")
 }
@@ -252,7 +266,7 @@ model Role {
   modules      String[]          @default([])
   coordinators CoordinatorRole[]
   createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
+  updatedAt    DateTime?         @updatedAt
   deletedAt    DateTime?
 
   @@map("role")
@@ -265,7 +279,7 @@ model CoordinatorRole {
   role          Role            @relation(fields: [roleId], references: [id])
   coordinator   CoopCoordinator @relation(fields: [coordinatorId], references: [id])
   createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  updatedAt     DateTime?       @updatedAt
   deletedAt     DateTime?
 
   @@map("coordinator_role")
@@ -281,7 +295,7 @@ model AdminLog {
   time      String
   activity  String
   createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
+  updatedAt DateTime?        @updatedAt
   deletedAt DateTime?
   admin     Admin?           @relation(fields: [admin_id], references: [id])
   coor      CoopCoordinator? @relation(fields: [coor_id], references: [id])
@@ -297,7 +311,7 @@ model PasswordReset {
   token     String           @unique
   expiresAt DateTime
   createdAt DateTime         @default(now())
-  updatedAt DateTime         @updatedAt
+  updatedAt DateTime?        @updatedAt
   deletedAt DateTime?
   admin     Admin?           @relation(fields: [adminId], references: [id])
   user      User?            @relation(fields: [userId], references: [id])

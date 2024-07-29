@@ -7,17 +7,50 @@ import UserShowAction from "../user/UserShowAction";
 import { parse } from "path";
 
 class SoaCreateAction {
+
+    static async getNextReferenceNumber(): Promise<string> {
+        const lastBill = await prisma.bill.findFirst({
+            where: {},
+            orderBy: {
+                id: 'desc',
+            },
+        });
+
+        if (!lastBill) {
+            return "OEC00000001";
+        }
+
+        const lastReferenceNumber = lastBill.referenceNumber;
+        const lastNumber = parseInt(lastReferenceNumber.slice(3), 10);
+        const nextNumber = (lastNumber + 1).toString().padStart(8, '0');
+        return `OEC${nextNumber}`;
+    }
+
     static async execute(
         data: Omit<Bill, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>,
-        coopId: number,
-        id: number,
+        mId: number,
     ) {
+
+
+        // const accountRegistry = await prisma.accountRegistry.findFirst({
+        //     where: {
+        //         userId: Uid,
+        //         meterId: mId
+        //     }, 
+        //     include: {
+        //         meterAccount: true
+        //     }
+        // })
+
+        // if (!accountRegistry) {
+        //     throw new Error("Account registry not found.");
+        // }
         const { kwhConsume, rate } = data;
 
         const lastBill = await prisma.bill.findFirst({
             where: {
-                coopId: coopId,
-                deletedAt: null
+                meterAccountId: mId,
+                deletedAt: null,
             },
             orderBy: {
                 id: 'desc'
@@ -40,29 +73,31 @@ class SoaCreateAction {
         const formattedFromDate = formatISO(fromDate);
         const formattedToDate = formatISO(toDate);
         const formattedDueDate = formatISO(dueDate)
+        const referenceNumber = await this.getNextReferenceNumber();
         return await prisma.bill.create({
             data: {
                 ...data,
-                coopId: coopId,
                 cRead: cRead,
                 pRead: pRead,
                 amount: amount,
                 fromDate: formattedFromDate,
                 toDate: formattedToDate,
                 nextDate: formattedNextDate,
-                dueDate: formattedDueDate
-            }
+                dueDate: formattedDueDate,
+                referenceNumber: referenceNumber,
+                meterAccountId: mId
+            },
 
         });
 
     }
     static async calculateDetails(data: Omit<Bill, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>,
-        coop_id: number
+        mId: number
     ) {
         const { kwhConsume, rate } = data;
         const lastBill = await prisma.bill.findFirst({
             where: {
-                coopId: coop_id,
+                meterAccountId: mId,
                 deletedAt: null
             },
             orderBy: {
@@ -81,7 +116,7 @@ class SoaCreateAction {
         const fitAllCharge = data.fitAll;
         const appliedCharge = data.applied;
         const otherCharge = data.other;
-
+        const referenceNumber = await this.getNextReferenceNumber();
         const totalAmount = (rate * kwhConsume) +
             distributionCharge +
             generationCharge +
@@ -92,26 +127,15 @@ class SoaCreateAction {
             fitAllCharge +
             appliedCharge +
             otherCharge;
+            const roundedTotalAmount = parseFloat(totalAmount.toFixed(2));
         const cRead = lastBill ? lastBill.cRead + kwhConsume : kwhConsume;
         const pRead = lastBill ? lastBill.cRead : 0;
 
         return {
             kwhConsume,
-            rate,
             cRead,
             pRead,
-            components: {
-                distributionCharge,
-                generationCharge,
-                systemLossCharge,
-                transmissionCharge,
-                subsidiesCharge,
-                governmentTax,
-                fitAllCharge,
-                appliedCharge,
-                otherCharge
-            },
-            totalAmount
+            totalAmount: roundedTotalAmount
         };
     }
 

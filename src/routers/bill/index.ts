@@ -44,7 +44,7 @@ const billController = new BillController();
  *               dueDate:
  *                 type: string
  *                 format: date
- *                 description: The end date of the billing period
+ *                 description: The due date for bill payment
  *                 example: "2023-02-31"
  *               kwhConsume:
  *                 type: number
@@ -155,8 +155,9 @@ const billController = new BillController();
  *                   example: "Internal server error"
  */
 
+
 billRoute.post(
-    "/create/:id",
+    "/create/:id/",
     apiKeyAuth,
     CoorMiddleware.authToken,
     billController.createBill

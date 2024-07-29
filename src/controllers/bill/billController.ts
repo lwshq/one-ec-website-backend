@@ -6,12 +6,12 @@ import Mailer from "../../utils/Mailer";
 import path from "path";
 import PDFService from "../../views/pdf";
 import fs from 'fs';
+import ArShowAction from "../../actions/ar/arShowAction";
 class BillController {
     async createBill(req: Request, res: Response) {
         try {
             const { id } = req.params;
             const validation = SoaCreateAction.validate(req.body);
-            const coopId = req.coorData.coop_id;
 
             if (!validation.success) {
                 return AppResponse.sendError({
@@ -23,9 +23,20 @@ class BillController {
             }
 
             
+            const ar = await ArShowAction.execute(parseInt(id))
+            if (!ar) {
+                return AppResponse.sendError({
+                    res: res,
+                    data: null,
+                    message: "AR not found",
+                    code: 404,
+                })
+            }
+          
+    
             
-            const newBill = await SoaCreateAction.execute(req.body, coopId, parseInt(id));
-            const user = await UserShowAction.execute(parseInt(id))
+            const newBill = await SoaCreateAction.execute(req.body, ar.meterId);
+            const user = await UserShowAction.execute(ar.userId)
             if (!user) {
                 return AppResponse.sendError({
                     res: res,
@@ -61,7 +72,6 @@ class BillController {
 
     async calculateBillDetails(req: Request, res: Response) {
         const { id } = req.params;
-        const coopId = req.coorData.coop_id;
         try {
             const validation = SoaCreateAction.validate(req.body);
             if (!validation.success) {
@@ -73,7 +83,17 @@ class BillController {
                 });
             }
 
-            const billDetails = await SoaCreateAction.calculateDetails(req.body, coopId);
+            const ar = await ArShowAction.execute(parseInt(id))
+            if (!ar) {
+                return AppResponse.sendError({
+                    res: res,
+                    data: null,
+                    message: "AR not found",
+                    code: 404,
+                })
+            }
+
+            const billDetails = await SoaCreateAction.calculateDetails(req.body, ar.id);
             return AppResponse.sendSuccess({
                 res,
                 data: billDetails,
