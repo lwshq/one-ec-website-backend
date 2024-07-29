@@ -396,4 +396,61 @@ roleRoute.delete(
     roleController.delete
 );
 
+/**
+ * @swagger
+ * /api/v1/role/roleCoor:
+ *   get:
+ *     summary: Get the role of a coordinator by their ID
+ *     tags: [Role Management]
+ *     security:
+ *       - apiKeyAuth: []
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Coordinator Role retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                 message:
+ *                   type: string
+ *                 code:
+ *                   type: integer
+ *       404:
+ *         description: Coordinator not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                 message:
+ *                   type: string
+ *                 code:
+ *                   type: integer
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                 message:
+ *                   type: string
+ *                 code:
+ *                   type: integer
+ */
+
+roleRoute.get(
+    "/roleCoor",
+    apiKeyAuth,
+    CoorMiddleware.authToken,
+    roleController.role
+);
 export default roleRoute;

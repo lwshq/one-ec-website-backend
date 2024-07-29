@@ -44,11 +44,13 @@ class CoorController {
         await AuthAction.logActivity(admin, 'Logged in');
 
         const token = await AuthAction.generateToken(data);
+        const role =  await AuthAction.role(data)
 
         return AppResponse.sendSuccess({
           res: res,
           data: {
             token,
+            role,
           },
           message: "Authentication successful",
           code: 200,

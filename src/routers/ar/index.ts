@@ -50,8 +50,8 @@ const arController = new ArController();
 arRoute.get(
     "/list",
     apiKeyAuth,
-    CheckAccess([], ['/soa']),
     CoorMiddleware.authToken,
+    CheckAccess([], ['/soa']),
     arController.list
 );
 
@@ -116,8 +116,8 @@ arRoute.get(
 arRoute.get(
     "/show/:id",
     apiKeyAuth,
-    CheckAccess(['view'], ['/soa']),
     CoorMiddleware.authToken,
+    CheckAccess(['view'], ['/soa']),
     arController.show
 );
 
