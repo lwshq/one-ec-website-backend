@@ -1,6 +1,6 @@
 import prisma from "../../utils/client";
 
-class BillListPaginateAction {
+class ArListPaginateAction {
     static async execute(page: number, pageSize: number, coopId: number) {
         const skip = (page - 1) * pageSize;
         const [ar, total] = await Promise.all ([
@@ -8,7 +8,13 @@ class BillListPaginateAction {
                 where: {
                     deletedAt: null,
                     meterAccount: {
-                        coopId: coopId
+                        coop: {
+                            id: coopId,
+                            deletedAt: null
+                        }
+                    },
+                    user: {
+                        deleted_at: null
                     }
                 },
                 skip,
@@ -22,13 +28,20 @@ class BillListPaginateAction {
                 where: {
                     deletedAt: null,
                     meterAccount: {
-                        coopId: coopId
+                        coop: {
+                            id: coopId
+                        }
+                    },
+                    user : {
+                        deleted_at: null
                     }
                 },
             }),
-        ])
+
+            
+        ]);
         return { ar, total }
     }
 }
 
-export default BillListPaginateAction;
+export default ArListPaginateAction;

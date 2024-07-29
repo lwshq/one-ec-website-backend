@@ -9,7 +9,6 @@ class PDFService {
             try {
                 const dir = path.dirname(filePath);
 
-                // Ensure the directory exists
                 if (!fs.existsSync(dir)) {
                     console.log(`Directory ${dir} does not exist. Creating...`);
                     fs.mkdirSync(dir, { recursive: true });
@@ -18,7 +17,6 @@ class PDFService {
                 const doc = new PDFDocument();
                 const stream = fs.createWriteStream(filePath);
 
-                // Add event listeners to the stream
                 stream.on('finish', () => {
                     console.log(`PDF successfully saved to ${filePath}`);
                     resolve();
@@ -49,6 +47,7 @@ class PDFService {
                 doc.text(`FIT-All Charge: ${bill.fitAll}`);
                 doc.text(`Applied Fees: ${bill.applied}`);
                 doc.text(`Other Charges: ${bill.other}`);
+                doc.text(`Other Charges: ${bill.amount}`);
 
                 doc.end();
             } catch (error) {

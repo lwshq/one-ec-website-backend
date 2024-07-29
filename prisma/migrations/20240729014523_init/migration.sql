@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "bill" ADD COLUMN     "prevBill" DOUBLE PRECISION DEFAULT 0.00;
