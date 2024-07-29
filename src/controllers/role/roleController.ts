@@ -9,6 +9,7 @@ import { roleSchemaCreate } from "../../utils/validationSchemas";
 import RoleShowAction from "../../actions/role/roleShowAction";
 import RoleListPaginateAction from "../../actions/role/roleListPaginateAction";
 import RoleDeleteAction from "../../actions/role/roleDeleteAction";
+import RoleCoorShowAction from "../../actions/role/roleCoordinatorShowAction";
 
 class RoleController {
 
@@ -195,6 +196,36 @@ class RoleController {
         }
 
     }
+
+    async role(req: Request, res: Response) {
+        try {
+          const id = req.coorData.id;
+          const coor = await RoleCoorShowAction.execute(id)
+    
+          if (!coor) {
+            return AppResponse.sendError({
+              res: res,
+              data: null,
+              message: "Coor not found",
+              code: 404
+            })
+          }
+    
+          return AppResponse.sendSuccess({
+            res: res,
+            data: coor,
+            message: "Coor Role retrieved successfully",
+            code: 200
+          })
+        } catch (error: any) {
+          return AppResponse.sendError({
+            res: res,
+            data: null,
+            message: `Internal server error ${error.message}`,
+            code: 500,
+          })
+        }
+      }
 
 
 }
