@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import AppResponse from '../utils/AppResponse';
 import prisma from '../utils/client';
 
-const aggregatePermissionsAndModules = (coordinatorRoles: any[]) => {
+export const aggregatePermissionsAndModules = (coordinatorRoles: any[]) => {
   const allPermissions = new Set<string>();
   const allModules = new Set<string>();
 

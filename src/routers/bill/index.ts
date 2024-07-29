@@ -160,6 +160,7 @@ billRoute.post(
     "/create/:id/",
     apiKeyAuth,
     CoorMiddleware.authToken,
+    CheckAccess(['add'], ['/soa']),
     billController.createBill
 );
 
@@ -319,6 +320,7 @@ billRoute.post(
     "/calculate/:id",
     apiKeyAuth,
     CoorMiddleware.authToken,
+    CheckAccess(['add'], ['/soa']),
     billController.calculateBillDetails
 );
 

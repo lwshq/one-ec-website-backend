@@ -101,7 +101,7 @@ roleRoute.post(
     "/create",
     apiKeyAuth,
     CoorMiddleware.authToken,
-    CheckAccess(['add'], ['role']),
+    CheckAccess(['add'], ['/role']),
     roleController.create
 );
 
@@ -212,7 +212,7 @@ roleRoute.put(
     "/update/:id",
     apiKeyAuth,
     CoorMiddleware.authToken,
-    CheckAccess(['edit'], ['role']),
+    CheckAccess(['edit'], ['/role']),
     roleController.update
 );
 
@@ -278,7 +278,7 @@ roleRoute.get(
     "/show/:id",
     apiKeyAuth,
     CoorMiddleware.authToken,
-    CheckAccess(['view'], ['role']),
+    CheckAccess(['view'], ['/role']),
     roleController.show
 );
 
@@ -326,7 +326,7 @@ roleRoute.get(
     "/list",
     apiKeyAuth,
     CoorMiddleware.authToken,
-    CheckAccess(['view'], ['role']),
+    CheckAccess(['view'], ['/role']),
     roleController.list
 );
 
@@ -392,7 +392,7 @@ roleRoute.delete(
     "/delete/:id",
     apiKeyAuth,
     CoorMiddleware.authToken,
-    CheckAccess(['delete'], ['role']),
+    CheckAccess(['delete'], ['/role']),
     roleController.delete
 );
 
