@@ -477,6 +477,7 @@ coorRoute.post(
     "/create",
     apiKeyAuth,
     CoorMiddleware.authToken,
+    CheckAccess(['add'], ['users']),
     coorController.create
 );
 
@@ -633,7 +634,7 @@ coorRoute.put(
     "/update/:id",
     apiKeyAuth,
     CoorMiddleware.authToken,
-    CheckAccess(['edit'], ['users']),
+    CheckAccess(['edit'], ['/users']),
     coorController.update
 );
 
@@ -681,7 +682,7 @@ coorRoute.get(
     "/list",
     apiKeyAuth,
     CoorMiddleware.authToken,
-    CheckAccess([], ['users']),
+    CheckAccess([], ['/users']),
     coorController.list
 );
 
@@ -747,7 +748,7 @@ coorRoute.delete(
     "/delete/:id",
     apiKeyAuth,
     CoorMiddleware.authToken,
-    CheckAccess(['delete'], ['users']),
+    CheckAccess(['delete'], ['/users']),
     coorController.delete
 );
  
@@ -812,6 +813,7 @@ coorRoute.delete(
 coorRoute.get(
     "/show/:id",
     apiKeyAuth,
+    CheckAccess(['view'], ['users']),
     CoorMiddleware.authToken,
     coorController.show
 );

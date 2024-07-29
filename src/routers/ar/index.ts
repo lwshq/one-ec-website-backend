@@ -3,6 +3,7 @@ import config from "../../config/index";
 import apiKeyAuth from "../../middlewares/apiKey";
 import CoorMiddleware from "../../middlewares/coop";
 import ArController from "../../controllers/ar/arController";
+import CheckAccess from "../../middlewares/role";
 
 const arRoute = Router();
 const arController = new ArController();
@@ -49,6 +50,7 @@ const arController = new ArController();
 arRoute.get(
     "/list",
     apiKeyAuth,
+    CheckAccess([], ['/soa']),
     CoorMiddleware.authToken,
     arController.list
 );
@@ -114,6 +116,7 @@ arRoute.get(
 arRoute.get(
     "/show/:id",
     apiKeyAuth,
+    CheckAccess(['view'], ['/soa']),
     CoorMiddleware.authToken,
     arController.show
 );

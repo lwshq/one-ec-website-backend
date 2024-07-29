@@ -5,7 +5,8 @@ import bcrypt from "bcrypt";
 import { includes } from "lodash";
 import Token from "../../utils/token";
 import Mailer from "../../utils/Mailer";
-
+import { aggregatePermissionsAndModules } from "../../middlewares/role";
+import { CoopCoordinator } from "@prisma/client";
 class AuthAction {
   static async execute(data: User) {
     const coor = await prisma.coopCoordinator.findFirst({
@@ -94,16 +95,45 @@ class AuthAction {
     const coor = await prisma.coopCoordinator.findFirst({
       where: {
         email: data.email,
+        deleted_at: null,
       },
     });
 
     if (!coor) {
       throw new Error("Invalid Login Credentials");
     }
-
+    const coorRole = await prisma.coopCoordinator.findFirst({
+      where: {
+        email: data.email,
+        deleted_at: null,
+      },
+      include: {
+        roles: {
+          include: {
+            role: true
+          }
+        }
+      }
+     
+      
+    });
+    if (!coorRole) {
+      throw new Error("Invalid Login Credentials");
+    }
     console.log(coor);
-
-    return Token.generate(coor);
+    const token = Token.generate(coor);
+    const { permissions, modules } = aggregatePermissionsAndModules(coorRole.roles);
+    return {
+      coordinator: {
+        email: coorRole.email,
+        first_name: coorRole.first_name,
+        last_name: coorRole.last_name,
+        role: coorRole.role,
+        permissions: permissions,
+        modules: modules
+      },
+      token: token,
+    };
   }
 
   static validate(data: User) {

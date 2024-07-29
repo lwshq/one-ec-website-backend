@@ -45,6 +45,7 @@ model User {
   birthdate      DateTime?
   email          String    @unique
   contact_number String?
+  gender         String?
   role           UserRole  @default(USER)
   created_at     DateTime? @default(now())
   updated_at     DateTime? @updatedAt
