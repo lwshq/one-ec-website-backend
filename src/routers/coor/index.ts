@@ -813,8 +813,8 @@ coorRoute.delete(
 coorRoute.get(
     "/show/:id",
     apiKeyAuth,
-    CheckAccess(['view'], ['users']),
     CoorMiddleware.authToken,
+    CheckAccess(['view'], ['/users']),
     coorController.show
 );
 
@@ -862,7 +862,7 @@ coorRoute.get(
     "/list/coop",
     apiKeyAuth,
     CoorMiddleware.authToken,
-    CheckAccess([], ['users']),
+    CheckAccess([], ['/users']),
     coorController.listPerCoop
 );
 
@@ -938,7 +938,7 @@ coorRoute.get(
     "/search",
     apiKeyAuth,
     CoorMiddleware.authToken,
-    CheckAccess([], ['users']),
+    CheckAccess([], ['/susers']),
     coorController.search
 );
 

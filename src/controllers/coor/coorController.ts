@@ -18,10 +18,12 @@ import CoorDeleteAction from "../../actions/coor/coorDeleteAction";
 import CoorShowAction from "../../actions/coor/coorShowAction";
 import CoorListPaginatePerCoopAction from "../../actions/coor/coorListPerCoopAction";
 import CoorSearchAction from "../../actions/coor/coorSearch";
+import RoleCoorShowAction from "../../actions/role/roleCoordinatorShowAction";
 
 class CoorController {
   async auth(req: Request, res: Response) {
     try {
+  
       const data: User = {
         email: req.body.email,
         password: req.body.password,
@@ -44,13 +46,12 @@ class CoorController {
         await AuthAction.logActivity(admin, 'Logged in');
 
         const token = await AuthAction.generateToken(data);
-        const role =  await AuthAction.role(data)
-
+        const role = await RoleCoorShowAction.execute(admin.id)
         return AppResponse.sendSuccess({
           res: res,
           data: {
             token,
-            role,
+            role
           },
           message: "Authentication successful",
           code: 200,
