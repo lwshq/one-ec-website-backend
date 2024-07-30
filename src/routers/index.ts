@@ -5,6 +5,7 @@ import coorRoute from "./coor";
 import roleRoute from "./role";
 import billRoute from "./bill";
 import arRoute from "./ar";
+import userRoute from "./user";
 const routes = express.Router();
 
 routes.use("/admin", adminRoute);
@@ -13,5 +14,5 @@ routes.use("/coor", coorRoute);
 routes.use("/role", roleRoute);
 routes.use("/bill", billRoute)
 routes.use("/ar", arRoute)
-
+routes.use("/user", userRoute)
 export default routes;

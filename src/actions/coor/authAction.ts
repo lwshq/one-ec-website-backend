@@ -107,34 +107,7 @@ class AuthAction {
     return Token.generate(coor);
   }
 
-  static async role(data: any) {
-    const coorRole = await prisma.coopCoordinator.findFirst({
-      where: {
-        email: data.email,
-        deleted_at: null
-      },
-      include: {
-        roles: {
-          include: {
-            role: true
-          }
-        }
-      }
-    });
-
-    if (!coorRole) {
-      throw new Error("Invalid Login Credentials");
-    }
-    const { permissions, modules } = aggregatePermissionsAndModules(coorRole.roles);
-
-    return {
-      role: {
-        role: coorRole.role,
-        permissions: permissions,
-        modules: modules
-      },
-    }
-  }
+ 
   static validate(data: User) {
     const loginSchema = z.object({
       email: z.string().email(),

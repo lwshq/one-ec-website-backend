@@ -46,12 +46,12 @@ model User {
   email          String    @unique
   contact_number String?
   gender         String?
+  address        String?
   role           UserRole  @default(USER)
   created_at     DateTime? @default(now())
   updated_at     DateTime? @updatedAt
   deleted_at     DateTime?
 
-  address         UserAddress[]
   payments        Payment[]
   account         Account[]
   PasswordReset   PasswordReset[]
@@ -134,18 +134,18 @@ model CoopBank {
   @@map("coop_bank")
 }
 
-model UserAddress {
-  id        Int       @id @default(autoincrement())
-  userId    Int
-  address   String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime? @updatedAt
-  deletedAt DateTime?
+// model UserAddress {
+//   id        Int       @id @default(autoincrement())
+//   userId    Int
+//   address   String
+//   createdAt DateTime  @default(now())
+//   updatedAt DateTime? @updatedAt
+//   deletedAt DateTime?
 
-  user User @relation(fields: [userId], references: [id])
+//   // user User @relation(fields: [userId], references: [id])
 
-  @@map("user_address")
-}
+//   @@map("user_address")
+// }
 
 model Payment {
   id        Int       @id @default(autoincrement())
@@ -244,21 +244,21 @@ model AccountRegistry {
 //   @@map("meter_address")
 // }
 
-model Settlement {
-  id         Int       @id @default(autoincrement())
-  coopId     Int
-  amount     Float
-  commission Float
-  netAmount  Float
-  date       DateTime
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime? @updatedAt
-  deletedAt  DateTime?
+// model Settlement {
+//   id         Int       @id @default(autoincrement())
+//   coopId     Int
+//   amount     Float
+//   commission Float
+//   netAmount  Float
+//   date       DateTime
+//   createdAt  DateTime  @default(now())
+//   updatedAt  DateTime? @updatedAt
+//   deletedAt  DateTime?
 
-  // coop Cooperative @relation(fields: [coopId], references: [id])
+//   // coop Cooperative @relation(fields: [coopId], references: [id])
 
-  @@map("settlement")
-}
+//   @@map("settlement")
+// }
 
 model Role {
   id           Int               @id @default(autoincrement())

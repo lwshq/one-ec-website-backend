@@ -115,3 +115,25 @@ export const updateCoordinatorSchema = z.object({
   }),
   roleIds: z.array(z.number()).min(1, "At least one role is required").optional()
 });
+
+export const userDataSchema = z.object({
+  first_name: z.string().min(1, "First name is required"),
+  middle_name: z.string().optional().nullable(),  
+  last_name: z.string().min(1, "Last name is required"),
+  birthdate: z.string()
+  .refine(val => !isNaN(Date.parse(val)), "Invalid date format for 'birthdate'. Expected format: YYYY-MM-DD")
+  .transform(val => new Date(val)),     
+  email: z.string().email("Invalid email format"),
+  contact_number: z.string().optional().nullable(),  
+  gender: z.string().optional().nullable(),          
+  role: z.enum(['USER']).optional(), 
+  address: z.string().optional().nullable()         
+});
+
+export const meterDataSchema = z.object({
+  meterNumber: z.number().min(1, "Meter number must be valid"),
+  meterAccountName: z.string().optional(), 
+  meterAddress: z.string().optional(),
+  customerType: z.string().optional(),
+  meterActivated: z.boolean().optional() 
+});
