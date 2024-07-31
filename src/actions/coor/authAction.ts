@@ -112,7 +112,7 @@ class AuthAction {
       const loginSchema = z.object({
       email: z.string().email(),
       password: z.string(),
-    });
+    });  
 
     return loginSchema.safeParse(data);
   }
