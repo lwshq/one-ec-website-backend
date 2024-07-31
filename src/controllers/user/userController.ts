@@ -3,7 +3,8 @@ import AppResponse from "../../utils/AppResponse";
 import { meterDataSchema, userDataSchema } from "../../utils/validationSchemas";
 import prisma from "../../utils/client";
 import CreateCustomerAction from "../../actions/user/userCreateAction";
-
+import { User } from "../../types/custom";
+import UserAuthAction from "../../actions/user/userLoginAction";
 
 class UserController {
 
@@ -63,6 +64,83 @@ class UserController {
         }
     }
 
+    async auth(req: Request, res: Response) {
+        try {
+            const ip = req.ip || '0.0.0.0';
+            const data: User = {
+                email: req.body.email,
+                password: req.body.password,
+            };
+
+            const validation = UserAuthAction.validate(data);
+
+            if (!validation.success) {
+                return AppResponse.sendError({
+                    res: res,
+                    data: null,
+                    message: `Error : ${validation.error.errors}`,
+                    code: 400,
+                });
+            }
+
+            const userId = await prisma.user.findFirst({
+                where: {
+                    email: validation.data.email,
+                    deleted_at: null
+                }
+            });
+
+            if (!userId) {
+                return AppResponse.sendError({
+                    res: res,
+                    data: null,
+                    message: "User not found",
+                    code: 400,
+                });
+            }
+
+            const user = await UserAuthAction.execute(data, ip, userId.id);
+
+
+            const token = await UserAuthAction.generateToken(data);
+            return AppResponse.sendSuccess({
+                res: res,
+                data: {
+                    token,
+                },
+                message: "Authentication successful",
+                code: 200,
+            });
+        }
+
+        catch (error: any) {
+            if (error.message == "Invalid Login Credentials") {
+                return AppResponse.sendError({
+                    res: res,
+                    data: null,
+                    message: error.message,
+                    code: 401,
+                });
+            } else if (error.message.includes("Too many login attempts")) {
+                return AppResponse.sendError({
+                    res: res,
+                    data: null,
+                    message: error.message,
+                    code: 429
+                })
+            } else {
+                return AppResponse.sendError({
+                    res: res,
+                    data: null,
+                    message: `Internal server error : ${error.message}`,
+                    code: 500,
+                });
+            }
+
+        }
+    }
+
 }
+
 
 export default UserController;

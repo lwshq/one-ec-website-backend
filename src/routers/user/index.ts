@@ -181,4 +181,80 @@ userRoute.post(
     CoorMiddleware.authToken,
     userController.create
 );
+
+
+/**
+ * @swagger
+ * /api/v1/user/authenticate:
+ *   post:
+ *     summary: Authentication API
+ *     description: |
+ *       This endpoint allows the user to log in.
+ *     tags: [User Management]
+ *     security:
+ *       - apiKeyAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 description: Email is required
+ *                 example: sacdalernest02@gmail.com
+ *               password:
+ *                 type: string
+ *                 description: Password is required
+ *                 example: password
+ *             required:
+ *               - email
+ *               - password
+ *     responses:
+ *       '200':
+ *         description: Login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     token:
+ *                       type: string
+ *                       example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+ *                 message:
+ *                   type: string
+ *                   example: Login successful
+ *                 response:
+ *                   type: string
+ *                   example: Success
+ *                 code:
+ *                   type: integer
+ *                   example: 200
+ *       '401':
+ *         description: Invalid credentials
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Invalid email or password
+ *                 response:
+ *                   type: string
+ *                   example: Error
+ *                 code:
+ *                   type: integer
+ *                   example: 401
+ */
+
+userRoute.post(
+    "/authenticate",
+    apiKeyAuth,
+    userController.auth
+);
 export default userRoute;

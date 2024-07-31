@@ -56,8 +56,26 @@ model User {
   account         Account[]
   PasswordReset   PasswordReset[]
   accountRegistry AccountRegistry[]
+  LoginAttempt    LoginAttempt[]
 
   @@map("user")
+}
+
+model LoginAttempt {
+  id              Int       @id @default(autoincrement())
+  ip_address      String
+  attempts        Int       @default(0)
+  last_attempt_at DateTime? @default(now())
+  reset_at        DateTime? @default(now())
+  userId          Int?
+  adminId         Int?
+  coorId          Int?
+
+  user            User?            @relation(fields: [userId], references: [id])
+  admin           Admin?           @relation(fields: [adminId], references: [id])
+  coopCoordinator CoopCoordinator? @relation(fields: [coorId], references: [id])
+
+  @@map("login_attempts")
 }
 
 model CoopCoordinator {
@@ -81,6 +99,7 @@ model CoopCoordinator {
   roles         CoordinatorRole[]
   PasswordReset PasswordReset[]
   AdminLog      AdminLog[]
+  LoginAttempt  LoginAttempt[]
 
   @@map("coordinator")
 }
@@ -100,6 +119,7 @@ model Admin {
   account          Account[]
   AdminLog         AdminLog[]
   PasswordReset    PasswordReset[]
+  LoginAttempt     LoginAttempt[]
 
   @@map("admin")
 }

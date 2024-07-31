@@ -109,7 +109,7 @@ class AuthAction {
 
  
   static validate(data: User) {
-    const loginSchema = z.object({
+      const loginSchema = z.object({
       email: z.string().email(),
       password: z.string(),
     });

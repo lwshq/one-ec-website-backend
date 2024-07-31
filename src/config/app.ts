@@ -10,7 +10,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.json());
-
+app.set('trust proxy', true);
 // Development logging
 if (process.env.PROJECT_ENV === "development") {
   app.use(morgan("dev"));
