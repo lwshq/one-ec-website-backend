@@ -62,15 +62,17 @@ model User {
 }
 
 model LoginAttempt {
-  id              Int       @id @default(autoincrement())
+  id              Int              @id @default(autoincrement())
   ip_address      String
-  attempts        Int       @default(0)
-  last_attempt_at DateTime? @default(now())
-  reset_at        DateTime? @default(now())
+  attempts        Int              @default(0)
+  last_attempt_at DateTime?        @default(now())
+  reset_at        DateTime?        @default(now())
   userId          Int?
   adminId         Int?
   coorId          Int?
-
+  created_at      DateTime?        @default(now())
+  updated_at      DateTime?        @updatedAt
+  deleted_at      DateTime?
   user            User?            @relation(fields: [userId], references: [id])
   admin           Admin?           @relation(fields: [adminId], references: [id])
   coopCoordinator CoopCoordinator? @relation(fields: [coorId], references: [id])
@@ -202,6 +204,7 @@ model Bill {
   fitAll          Float        @default(0.00)
   applied         Float        @default(0.00)
   other           Float        @default(0.00)
+  uCharges        Float        @default(0.00)
   rate            Float        @default(0.00)
   amount          Float
   referenceNumber String

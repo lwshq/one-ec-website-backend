@@ -64,11 +64,11 @@ class SoaCreateAction {
 
 
         const amount = rate * kwhConsume + data.distribution + data.generation + data.sLoss +
-            data.transmission + data.subsidies + data.gTax + data.fitAll + data.applied + data.other;
-        const fromDate = new Date();
-        const toDate = new Date();
-        const nextDate = new Date();
-        const dueDate = new Date();
+            data.transmission + data.subsidies + data.gTax + data.fitAll + data.applied + data.other + data.uCharges;
+        const fromDate = data.fromDate;
+        const toDate = data.toDate;
+        const nextDate = data.nextDate;
+        const dueDate = data.dueDate;
         const formattedNextDate = formatISO(nextDate)
         const formattedFromDate = formatISO(fromDate);
         const formattedToDate = formatISO(toDate);
@@ -116,6 +116,7 @@ class SoaCreateAction {
         const fitAllCharge = data.fitAll;
         const appliedCharge = data.applied;
         const otherCharge = data.other;
+        const uCharges = data.uCharges;
         const referenceNumber = await this.getNextReferenceNumber();
         const totalAmount = (rate * kwhConsume) +
             distributionCharge +
@@ -126,7 +127,8 @@ class SoaCreateAction {
             governmentTax +
             fitAllCharge +
             appliedCharge +
-            otherCharge;
+            otherCharge +
+            uCharges;
             const roundedTotalAmount = parseFloat(totalAmount.toFixed(2));
         const cRead = lastBill ? lastBill.cRead + kwhConsume : kwhConsume;
         const pRead = lastBill ? lastBill.cRead : 0;
