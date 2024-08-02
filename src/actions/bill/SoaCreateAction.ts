@@ -134,6 +134,17 @@ class SoaCreateAction {
         const pRead = lastBill ? lastBill.cRead : 0;
 
         return {
+            distributionCharge,
+            generationCharge,
+            systemLossCharge,
+            transmissionCharge,
+            subsidiesCharge,
+            governmentTax,
+            fitAllCharge,
+            appliedCharge,
+            otherCharge,
+            uCharges,
+            referenceNumber,
             kwhConsume,
             cRead,
             pRead,
