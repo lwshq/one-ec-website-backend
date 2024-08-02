@@ -46,10 +46,20 @@ const billController = new BillController();
  *                 format: date
  *                 description: The next date for bill payment
  *                 example: "2023-02-31"
-   *               dueDate:
+ *               dueDate:
  *                 type: string
  *                 format: date
  *                 description: The due date for bill payment
+ *                 example: "2023-02-31"
+ *               billDate:
+ *                 type: string
+ *                 format: date
+ *                 description: The bill date for bill payment
+ *                 example: "2023-02-31"
+ *               readingDate:
+ *                 type: string
+ *                 format: date
+ *                 description: The reading date for bill payment
  *                 example: "2023-02-31"
  *               kwhConsume:
  *                 type: number
@@ -95,7 +105,7 @@ const billController = new BillController();
  *                 type: number
  *                 description: Any other charges
  *                 example: 0.50
-  *               uCharges:
+ *               uCharges:
  *                 type: number
  *                 description: Any other charges
  *                 example: 0.50
@@ -166,11 +176,11 @@ const billController = new BillController();
 
 
 billRoute.post(
-    "/create/:id/",
-    apiKeyAuth,
-    CoorMiddleware.authToken,
-    CheckAccess(['add'], ['/soa']),
-    billController.createBill
+  "/create/:id/",
+  apiKeyAuth,
+  CoorMiddleware.authToken,
+  CheckAccess(['add'], ['/soa']),
+  billController.createBill
 );
 
 /**
@@ -209,12 +219,22 @@ billRoute.post(
  *               dueDate:
  *                 type: string
  *                 format: date
- *                 description: The end date of the billing period
+ *                 description: The due date of the billing period
  *                 example: "2023-02-31"
  *               nextDate:
  *                 type: string
  *                 format: date
- *                 description: The end date of the billing period
+ *                 description: The next date of the billing period
+ *                 example: "2023-02-31"
+ *               billDate:
+ *                 type: string
+ *                 format: date
+ *                 description: The bill date for bill payment
+ *                 example: "2023-02-31"
+ *               readingDate:
+ *                 type: string
+ *                 format: date
+ *                 description: The reading date for bill payment
  *                 example: "2023-02-31"
  *               kwhConsume:
  *                 type: number
@@ -335,11 +355,11 @@ billRoute.post(
  */
 
 billRoute.post(
-    "/calculate/:id",
-    apiKeyAuth,
-    CoorMiddleware.authToken,
-    CheckAccess(['add'], ['/soa']),
-    billController.calculateBillDetails
+  "/calculate/:id",
+  apiKeyAuth,
+  CoorMiddleware.authToken,
+  CheckAccess(['add'], ['/soa']),
+  billController.calculateBillDetails
 );
 
 export default billRoute;

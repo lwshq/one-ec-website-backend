@@ -69,10 +69,15 @@ class SoaCreateAction {
         const toDate = data.toDate;
         const nextDate = data.nextDate;
         const dueDate = data.dueDate;
+        const billDate = data.billDate;
+        const readingDate = data.readingDate;
         const formattedNextDate = formatISO(nextDate)
         const formattedFromDate = formatISO(fromDate);
         const formattedToDate = formatISO(toDate);
-        const formattedDueDate = formatISO(dueDate)
+        const formattedDueDate = formatISO(dueDate);
+        const formattedBillDate = formatISO(billDate);
+        const formattedReadingDate = formatISO(readingDate);
+
         const referenceNumber = await this.getNextReferenceNumber();
         return await prisma.bill.create({
             data: {
@@ -84,6 +89,8 @@ class SoaCreateAction {
                 toDate: formattedToDate,
                 nextDate: formattedNextDate,
                 dueDate: formattedDueDate,
+                billDate: formattedBillDate,
+                readingDate: formattedReadingDate,
                 referenceNumber: referenceNumber,
                 meterAccountId: mId
             },
@@ -106,7 +113,18 @@ class SoaCreateAction {
         });
 
 
-
+        const fromDate = data.fromDate;
+        const toDate = data.toDate;
+        const nextDate = data.nextDate;
+        const dueDate = data.dueDate;
+        const billDate = data.billDate;
+        const readingDate = data.readingDate;
+        const formattedNextDate = formatISO(nextDate)
+        const formattedFromDate = formatISO(fromDate);
+        const formattedToDate = formatISO(toDate);
+        const formattedDueDate = formatISO(dueDate);
+        const formattedBillDate = formatISO(billDate);
+        const formattedReadingDate = formatISO(readingDate);
         const distributionCharge = data.distribution;
         const generationCharge = data.generation;
         const systemLossCharge = data.sLoss;
@@ -134,6 +152,12 @@ class SoaCreateAction {
         const pRead = lastBill ? lastBill.cRead : 0;
 
         return {
+            formattedBillDate,
+            formattedDueDate,
+            formattedFromDate,
+            formattedNextDate,
+            formattedReadingDate,
+            formattedToDate,
             distributionCharge,
             generationCharge,
             systemLossCharge,
