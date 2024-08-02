@@ -192,6 +192,8 @@ model Bill {
   fromDate        DateTime
   toDate          DateTime
   nextDate        DateTime
+  billDate        DateTime
+  readingDate     DateTime
   cRead           Float
   pRead           Float        @default(0.00)
   kwhConsume      Float

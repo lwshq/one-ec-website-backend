@@ -78,7 +78,16 @@ export const billCreationSchema = z.object({
     .refine(val => !isNaN(Date.parse(val)), "Invalid date format for 'toDate'. Expected format: YYYY-MM-DD")
     .transform(val => new Date(val)),
   dueDate: z.string()
-    .refine(val => !isNaN(Date.parse(val)), "Invalid date format for 'toDate'. Expected format: YYYY-MM-DD")
+    .refine(val => !isNaN(Date.parse(val)), "Invalid date format for 'dueDate'. Expected format: YYYY-MM-DD")
+    .transform(val => new Date(val)),
+  nextDate: z.string()
+    .refine(val => !isNaN(Date.parse(val)), "Invalid date format for 'nextDate'. Expected format: YYYY-MM-DD")
+    .transform(val => new Date(val)),
+  billDate: z.string()
+    .refine(val => !isNaN(Date.parse(val)), "Invalid date format for 'billDate'. Expected format: YYYY-MM-DD")
+    .transform(val => new Date(val)),
+  readingDate: z.string()
+    .refine(val => !isNaN(Date.parse(val)), "Invalid date format for 'readingDate'. Expected format: YYYY-MM-DD")
     .transform(val => new Date(val)),
   kwhConsume: z.number()
     .positive("kWh consumption must be a positive number"),
@@ -118,22 +127,22 @@ export const updateCoordinatorSchema = z.object({
 
 export const userDataSchema = z.object({
   first_name: z.string().min(1, "First name is required"),
-  middle_name: z.string().optional().nullable(),  
+  middle_name: z.string().optional().nullable(),
   last_name: z.string().min(1, "Last name is required"),
   birthdate: z.string()
-  .refine(val => !isNaN(Date.parse(val)), "Invalid date format for 'birthdate'. Expected format: YYYY-MM-DD")
-  .transform(val => new Date(val)),     
+    .refine(val => !isNaN(Date.parse(val)), "Invalid date format for 'birthdate'. Expected format: YYYY-MM-DD")
+    .transform(val => new Date(val)).optional().nullable(),
   email: z.string().email("Invalid email format"),
-  contact_number: z.string().optional().nullable(),  
-  gender: z.string().optional().nullable(),          
-  role: z.enum(['USER']).optional(), 
-  address: z.string().optional().nullable()         
+  contact_number: z.string().optional().nullable(),
+  gender: z.string().optional().nullable(),
+  role: z.enum(['USER']).optional(),
+  address: z.string().optional().nullable()
 });
 
 export const meterDataSchema = z.object({
   meterNumber: z.number().min(1, "Meter number must be valid"),
-  meterAccountName: z.string().optional(), 
+  meterAccountName: z.string().optional(),
   meterAddress: z.string().optional(),
   customerType: z.string().optional(),
-  meterActivated: z.boolean().optional() 
+  meterActivated: z.boolean().optional()
 });
