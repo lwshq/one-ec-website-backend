@@ -7,13 +7,16 @@
   "scripts": {
     "start": "nodemon src/server.ts",
     "build": "tsc",
-    "vercel-build": "tsc",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "key:generate": "ts-node src/utils/generateKey.ts",
     "seed": "ts-node src/actions/seeders/index.ts",
     "test:email:1": "ts-node src/utils/tests/email_test1.ts",
-    "test:email:2": "ts-node src/utils/tests/email_test2.ts"
+    "test:email:2": "ts-node src/utils/tests/email_test2.ts",
+    "db:gen": "prisma generate",
+    "db:push": "prisma db push --accept-data-loss",
+    "db:init": "yarn run db:gen && yarn run db:push",
+    "vercel-build": "tsc && yarn run db:init && yarn run seed"
   },
   "devDependencies": {
     "@eslint/js": "^9.3.0",
