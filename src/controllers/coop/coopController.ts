@@ -35,11 +35,11 @@ class CoopController {
                 });
             }
 
-            const { coop, coordinator, role } = await CoopCreateAction.execute(req.body);
+            const { coop, coordinator } = await CoopCreateAction.execute(req.body);
 
             return AppResponse.sendSuccess({
                 res: res,
-                data: { coop, coordinator, role },
+                data: { coop, coordinator },
                 message: "Cooperative created successfully",
                 code: 201
             });

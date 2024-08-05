@@ -42,7 +42,7 @@ const roleController = new RoleController();
  *                 items:
  *                   type: string
  *                 description: UI modules accessible by the role
- *                 example: ["dashboard", "settings"]
+ *                 example: ["/soa", "/role"]
  *             required:
  *               - name
  *               - permissions
@@ -144,7 +144,7 @@ roleRoute.post(
  *                 items:
  *                   type: string
  *                 description: Updated UI modules accessible by the role
- *                 example: ["dashboard", "settings"]
+ *                 example: ["/soa", "/role"]
  *     responses:
  *       200:
  *         description: Role updated successfully
