@@ -146,3 +146,17 @@ export const meterDataSchema = z.object({
   customerType: z.string().optional(),
   meterActivated: z.boolean().optional()
 });
+
+export const userSchema = z.object({
+  first_name: z.string().max(255),
+  middle_name: z.string().nullable().optional(),
+  last_name: z.string().max(255),
+  birthdate: z.string()
+  .refine(val => !isNaN(Date.parse(val)), "Invalid date format for 'birthdate'. Expected format: YYYY-MM-DD")
+  .transform(val => new Date(val)),
+  email: z.string().email(),
+  contact_number: z.string().nullable().optional(),
+  gender: z.string().nullable().optional(),
+  address: z.string().max(255).nullable().optional(),
+  password: z.string().min(8)
+});
