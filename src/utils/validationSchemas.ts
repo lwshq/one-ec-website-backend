@@ -41,13 +41,13 @@ export const coopSchemaUpdate = z.object({
 export const roleSchemaCreate = z.object({
   name: z.string().max(255),
   permissions: z.array(z.enum(["view", "add", "edit", "delete"])).min(1, "At least one permission is required"),
-  modules: z.array(z.enum(["/soa", "/role", "/users"])).min(1, "At least one module is required"),
+  modules: z.array(z.enum(["/soa", "/role", "/users", "/customer-management", "/approvals"])).min(1, "At least one module is required"),
 });
 
 export const roleSchemaUpdate = z.object({
   name: z.string().max(255).optional(),
   permissions: z.array(z.enum(["view", "add", "edit", "delete"])).min(1, "At least one permission is required").optional(),
-  modules: z.array(z.enum(["/soa", "/role", "/users"])).min(1, "At least one module is required").optional(),
+  modules: z.array(z.enum(["/soa", "/role", "/users", "/customer-management", "/approvals"])).min(1, "At least one module is required").optional(),
 });
 
 export const createCoordinatorSchema = z.object({
