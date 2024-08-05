@@ -46,21 +46,21 @@ class CoopCreateAction {
                 },
             });
 
-            const superAdminRole = await tx.role.create({
-                data: {
-                    name: UserRole.COOPSUPERADMIN,
-                    permissions: [], 
-                    modules: [],
-                },
-            });
+            // const superAdminRole = await tx.role.create({
+            //     data: {
+            //         name: coop.name + " Super Admin",
+            //         permissions: [], 
+            //         modules: [],
+            //     },
+            // });
 
     
-            await tx.coordinatorRole.create({
-                data: {
-                    coordinatorId: coordinator.id,
-                    roleId: superAdminRole.id,
-                },
-            });
+            // await tx.coordinatorRole.create({
+            //     data: {
+            //         coordinatorId: coordinator.id,
+            //         roleId: superAdminRole.id,
+            //     },
+            // });
             const mailer = new Mailer();
             await mailer.sendAccountPassword(
                 data.coordinator.email,
@@ -69,7 +69,7 @@ class CoopCreateAction {
             );
             
 
-            return { coop, coordinator, role: superAdminRole };
+            return { coop, coordinator };
         });
     }
 

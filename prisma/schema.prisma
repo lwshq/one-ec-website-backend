@@ -138,6 +138,7 @@ model Cooperative {
   coordinators CoopCoordinator[]
   banks        CoopBank[]
   meters       MeterAccount[]
+  Role         Role[]
 
   @@map("cooperative")
 }
@@ -290,7 +291,9 @@ model Role {
   name         String
   permissions  String[]          @default([])
   modules      String[]          @default([])
+  coopId       Int
   coordinators CoordinatorRole[]
+  cooperatives Cooperative       @relation(fields: [coopId], references: [id])
   createdAt    DateTime          @default(now())
   updatedAt    DateTime?         @updatedAt
   deletedAt    DateTime?

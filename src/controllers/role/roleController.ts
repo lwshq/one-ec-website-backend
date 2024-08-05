@@ -14,8 +14,9 @@ import RoleCoorShowAction from "../../actions/role/roleCoordinatorShowAction";
 class RoleController {
 
     async create(req: Request, res: Response) {
-
+        const coop_id = req.coorData.coop_id
         try {
+
             const validation = RoleCreateAction.validate(req.body);
 
             if (!validation.success) {
@@ -27,7 +28,7 @@ class RoleController {
                 })
             }
 
-            const coop = await RoleCreateAction.execute(req.body);
+            const coop = await RoleCreateAction.execute(req.body, coop_id);
 
             return AppResponse.sendSuccess({
                 res: res,
@@ -125,8 +126,9 @@ class RoleController {
     async list(req: Request, res: Response) {
         const page = parseInt(req.query.page as string) || 1;
         const pageSize = parseInt(req.query.pageSize as string) || 10;
+        const coop_id = req.coorData.coop_id;
         try {
-            const { roles, total } = await RoleListPaginateAction.execute(page, pageSize)
+            const { roles, total } = await RoleListPaginateAction.execute(page, pageSize, coop_id)
 
             if (!roles) {
                 return AppResponse.sendError({
