@@ -1,10 +1,13 @@
 import { Request, Response, ErrorRequestHandler } from "express";
 import AppResponse from "../../utils/AppResponse";
-import { meterDataSchema, userDataSchema } from "../../utils/validationSchemas";
+import { meterDataSchema, requestResetSchema, resetPasswordSchema, userDataSchema, userSchema } from "../../utils/validationSchemas";
 import prisma from "../../utils/client";
 import CreateCustomerAction from "../../actions/user/userCreateAction";
 import { User } from "../../types/custom";
 import UserAuthAction from "../../actions/user/userLoginAction";
+import UserRegistrationAction from "../../actions/user/userRegistrationAction";
+import { UserRole } from "@prisma/client";
+import UserForgotPasswordAction from "../../actions/user/userForgotPasswordAction";
 
 class UserController {
 
@@ -139,6 +142,122 @@ class UserController {
 
         }
     }
+
+    async register(req: Request, res: Response) {
+        try {
+            const validation = userSchema.safeParse(req.body);
+
+            if (!validation.success) {
+                return AppResponse.sendError({
+                    res: res,
+                    data: null,
+                    message: `Validation error: ${validation.error.errors.map((err) => err.message).join(", ")}`,
+                    code: 400
+                });
+            }
+
+            const { password, ...userData } = validation.data;
+            const normalizedUserData = {
+                ...userData,
+                middle_name: userData.middle_name ?? null,
+                birthdate: userData.birthdate ?? null,
+                contact_number: userData.contact_number ?? null,
+                gender: userData.gender ?? null,
+                address: userData.address ?? null,
+                role: UserRole.USER
+            };
+            const existingUser = await prisma.user.findUnique({
+                where: {
+                    email: validation.data.email
+                }
+            })
+
+            if (existingUser) {
+                return AppResponse.sendError({
+                    res: res,
+                    data: null,
+                    message: "Email already exists",
+                    code: 400
+                });
+            }
+
+            const user = await UserRegistrationAction.execute(normalizedUserData, password)
+
+            return AppResponse.sendSuccess({
+                res: res,
+                data: user,
+                message: "User registered successfully",
+                code: 201
+            });
+        } catch (error: any) {
+            return AppResponse.sendError({
+                res: res,
+                data: null,
+                message: `Internal server error: ${error.message}`,
+                code: 500
+            });
+        }
+    }
+
+    async forgotPassword(req: Request, res: Response) {
+        try {
+          const validation = requestResetSchema.safeParse(req.body);
+          if (!validation.success) {
+            return AppResponse.sendError({
+              res: res,
+              data: null,
+              message: `Validation Error: ${validation.error.errors.map(err => err.message).join(", ")}`,
+              code: 400,
+            });
+          }
+    
+          const { email } = validation.data;
+          await UserForgotPasswordAction.requestReset(email);
+          return AppResponse.sendSuccess({
+            res: res,
+            data: null,
+            message: "Password reset link sent successfully",
+            code: 200,
+          });
+        } catch (error: any) {
+          return AppResponse.sendError({
+            res: res,
+            data: null,
+            message: `Error: ${error.message}`,
+            code: 400,
+          });
+        }
+      }
+    
+      async resetPassword(req: Request, res: Response) {
+        try {
+          const validation = resetPasswordSchema.safeParse(req.body);
+          if (!validation.success) {
+            return AppResponse.sendError({
+              res: res,
+              data: null,
+              message: `Validation Error: ${validation.error.errors.map(err => err.message).join(", ")}`,
+              code: 400,
+            });
+          }
+    
+          const { token, newPassword } = validation.data;
+          await UserForgotPasswordAction.resetPassword(token, newPassword);
+          return AppResponse.sendSuccess({
+            res: res,
+            data: null,
+            message: "Password reset successfully",
+            code: 200,
+          });
+        } catch (error: any) {
+          return AppResponse.sendError({
+            res: res,
+            data: null,
+            message: `Error: ${error.message}`,
+            code: 400,
+          });
+        }
+      }
 
 }
 

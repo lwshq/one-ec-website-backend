@@ -179,6 +179,7 @@ userRoute.post(
     "/create",
     apiKeyAuth,
     CoorMiddleware.authToken,
+    CheckAccess(['add'], ['/users']),
     userController.create
 );
 
@@ -257,4 +258,287 @@ userRoute.post(
     apiKeyAuth,
     userController.auth
 );
+
+
+/**
+ * @swagger
+ * /api/v1/user/register:
+ *   post:
+ *     summary: Register a new user
+ *     tags: [User Management]
+ *     security:
+ *       - apiKeyAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               first_name:
+ *                 type: string
+ *                 description: First name of the user
+ *                 example: "John"
+ *               middle_name:
+ *                 type: string
+ *                 description: Middle name of the user
+ *                 example: "A"
+ *               last_name:
+ *                 type: string
+ *                 description: Last name of the user
+ *                 example: "Doe"
+ *               birthdate:
+ *                 type: string
+ *                 format: date
+ *                 description: Birthdate of the user
+ *                 example: "1990-01-01"
+ *               email:
+ *                 type: string
+ *                 description: Email of the user
+ *                 example: "john.doe@example.com"
+ *               contact_number:
+ *                 type: string
+ *                 description: Contact number of the user
+ *                 example: "123-456-7890"
+ *               gender:
+ *                 type: string
+ *                 enum: [male, female, other]
+ *                 description: Gender of the user
+ *                 example: "male"
+ *               address:
+ *                 type: string
+ *                 description: Address of the user
+ *                 example: "123 Main St"
+ *               password:
+ *                 type: string
+ *                 description: Password of the user
+ *                 example: "userPassword123"
+ *             required:
+ *               - first_name
+ *               - last_name
+ *               - email
+ *               - password
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       description: Unique identifier for the user
+ *                     first_name:
+ *                       type: string
+ *                       description: First name of the user
+ *                     middle_name:
+ *                       type: string
+ *                       description: Middle name of the user
+ *                     last_name:
+ *                       type: string
+ *                       description: Last name of the user
+ *                     birthdate:
+ *                       type: string
+ *                       format: date
+ *                       description: Birthdate of the user
+ *                     email:
+ *                       type: string
+ *                       description: Email of the user
+ *                     contact_number:
+ *                       type: string
+ *                       description: Contact number of the user
+ *                     gender:
+ *                       type: string
+ *                       description: Gender of the user
+ *                     address:
+ *                       type: string
+ *                       description: Address of the user
+ *                     role:
+ *                       type: string
+ *                       description: Role of the user
+ *                     created_at:
+ *                       type: string
+ *                       format: date-time
+ *                       description: Timestamp when the user was created
+ *                     updated_at:
+ *                       type: string
+ *                       format: date-time
+ *                       description: Timestamp when the user was last updated
+ *                 message:
+ *                   type: string
+ *                   description: Success message
+ *                 code:
+ *                   type: integer
+ *                   description: Status code
+ *       400:
+ *         description: Validation error or email already exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Error message
+ *                 code:
+ *                   type: integer
+ *                   description: Status code
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: Error message
+ *                 code:
+ *                   type: integer
+ *                   description: Status code
+ */
+
+userRoute.post(
+    "/register",
+    apiKeyAuth,
+    userController.register
+);
+
+
+/**
+ * @swagger
+ * /api/v1/user/forgot:
+ *   post:
+ *     summary: Forgot Password API
+ *     description: This endpoint allows a user to request a password reset link to be sent to their registered email.
+ *     tags: [User Management]
+ *     security:
+ *       - apiKeyAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 description: Registered email of the user
+ *                 example: sampleemail@gmail.com
+ *             required:
+ *               - email
+ *     responses:
+ *       '200':
+ *         description: Password reset link sent successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Password reset link sent successfully
+ *                 response:
+ *                   type: string
+ *                   example: Success
+ *                 code:
+ *                   type: integer
+ *                   example: 200
+ *       '400':
+ *         description: Error sending password reset link
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Error: User not found"
+ *                 response:
+ *                   type: string
+ *                   example: Error
+ *                 code:
+ *                   type: integer
+ *                   example: 400
+ */
+
+userRoute.post(
+    "/forgot",
+    apiKeyAuth,
+    userController.forgotPassword
+)
+
+/**
+ * @swagger
+ * /api/v1/user/reset:
+ *   post:
+ *     summary: Reset Password API
+ *     description: This endpoint allows a user to reset their password using a token sent to their email.
+ *     tags: [User Management]
+ *     security:
+ *       - apiKeyAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               token:
+ *                 type: string
+ *                 description: Token received in the password reset email
+ *                 example: dummytoken123
+ *               newPassword:
+ *                 type: string
+ *                 description: New password
+ *                 example: newSecurePassword123
+ *             required:
+ *               - token
+ *               - newPassword
+ *     responses:
+ *       '200':
+ *         description: Password reset successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: Password reset successfully
+ *                 response:
+ *                   type: string
+ *                   example: Success
+ *                 code:
+ *                   type: integer
+ *                   example: 200
+ *       '400':
+ *         description: Invalid or expired token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Invalid or expired password reset token"
+ *                 response:
+ *                   type: string
+ *                   example: Error
+ *                 code:
+ *                   type: integer
+ *                   example: 400
+ */
+
+userRoute.post(
+    "/reset",
+    apiKeyAuth,
+    userController.resetPassword
+)
+
+
 export default userRoute;
