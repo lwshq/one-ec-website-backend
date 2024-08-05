@@ -170,6 +170,7 @@ class SoaCreateAction {
             uCharges,
             referenceNumber,
             kwhConsume,
+            rate,
             cRead,
             pRead,
             totalAmount: roundedTotalAmount
