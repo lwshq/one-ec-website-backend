@@ -7,6 +7,8 @@ import path from "path";
 import PDFService from "../../views/pdf";
 import fs from 'fs';
 import ArShowAction from "../../actions/ar/arShowAction";
+import BillListPerMeterAccountAction from "../../actions/bill/billListPerMeterAccount";
+import BillShowAction from "../../actions/bill/billShowAction";
 class BillController {
     async createBill(req: Request, res: Response) {
         try {
@@ -110,6 +112,70 @@ class BillController {
             });
         }
     }
+
+
+    async list(req: Request, res: Response) {
+        try {
+            const page = parseInt(req.query.page as string) || 1;
+            const pageSize = parseInt(req.query.pageSize as string) || 10;
+            const {userId} = req.params;
+            const coopId = req.coorData.coop_id;
+
+            const { ar, total } = await BillListPerMeterAccountAction.execute(page, pageSize, coopId, parseInt(userId));
+
+            return AppResponse.sendSuccess({
+                res,
+                data: {
+                    ar,
+                    total,
+                    page,
+                    pageSize,
+                    totalPages: Math.ceil(total / pageSize),
+                },
+                message: 'Bill list per soa fetched successfully',
+                code: 200
+            });
+        } catch (error: any) {
+            return AppResponse.sendError({
+                res,
+                data: null,
+                message: `Internal server error: ${error.message}`,
+                code: 500
+            });
+        }
+    }
+
+    async show(req: Request, res: Response) {
+        try {
+            const { id } = req.params;
+            const ar = await BillShowAction.execute(parseInt(id))
+
+            if (!ar) {
+                return AppResponse.sendError({
+                    res: res,
+                    data: null,
+                    message: "Bill not found or deleted",
+                    code: 404
+                })
+            }
+
+            return AppResponse.sendSuccess({
+                res: res,
+                data: ar,
+                message: "Bill retrieved successfully",
+                code: 200
+            })
+        } catch (error: any) {
+            return AppResponse.sendError({
+                res: res,
+                data: null,
+                message: `Internal server error ${error.message}`,
+                code: 500,
+            })
+        }
+    }
+
+
 }
 
 export default BillController;
