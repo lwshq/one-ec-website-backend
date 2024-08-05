@@ -362,4 +362,127 @@ billRoute.post(
   billController.calculateBillDetails
 );
 
+
+/**
+ * @swagger
+ * /api/v1/bill/list/{userId}:
+ *   get:
+ *     summary: Get all bill per user
+ *     tags: [Bill]
+ *     security:
+ *       - apiKeyAuth: []
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: User ID.
+ *     responses:
+ *       200:
+ *         description: Bill retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                 message:
+ *                   type: string
+ *                 code:
+ *                   type: integer
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                 message:
+ *                   type: string
+ *                 code:
+ *                   type: integer
+ */
+
+billRoute.get(
+  "/list/:userId",
+  apiKeyAuth,
+  CoorMiddleware.authToken,
+  CheckAccess(["view"], ['/soa']),
+  billController.list
+);
+
+
+/**
+ * @swagger
+ * /api/v1/bill/show/{id}:
+ *   get:
+ *     summary: Get a account registry by ID
+ *     tags: [Bill]
+ *     security:
+ *       - apiKeyAuth: []
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The Bill ID
+ *     responses:
+ *       200:
+ *         description: Bill retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                 message:
+ *                   type: string
+ *                 code:
+ *                   type: integer
+ *       404:
+ *         description: cooperative not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                 message:
+ *                   type: string
+ *                 code:
+ *                   type: integer
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                 message:
+ *                   type: string
+ *                 code:
+ *                   type: integer
+ */
+
+billRoute.get(
+  "/show/:id",
+  apiKeyAuth,
+  CoorMiddleware.authToken,
+  CheckAccess(['view'], ['/soa']),
+  billController.show
+);
+
 export default billRoute;
