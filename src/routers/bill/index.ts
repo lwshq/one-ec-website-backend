@@ -365,20 +365,20 @@ billRoute.post(
 
 /**
  * @swagger
- * /api/v1/bill/list/{userId}:
+ * /api/v1/bill/list/{id}:
  *   get:
- *     summary: Get all bill per user
+ *     summary: Get all bill per account
  *     tags: [Bill]
  *     security:
  *       - apiKeyAuth: []
  *       - bearerAuth: []
  *     parameters:
  *       - in: path
- *         name: userId
+ *         name: id
  *         required: true
  *         schema:
  *           type: integer
- *         description: User ID.
+ *         description: AR ID.
  *     responses:
  *       200:
  *         description: Bill retrieved successfully
@@ -411,7 +411,7 @@ billRoute.post(
  */
 
 billRoute.get(
-  "/list/:userId",
+  "/list/:id",
   apiKeyAuth,
   CoorMiddleware.authToken,
   CheckAccess(["view"], ['/soa']),

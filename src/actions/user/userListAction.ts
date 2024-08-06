@@ -1,40 +1,47 @@
 import prisma from "../../utils/client";
 
-class BillListPerMeterAccountAction {
-    static async execute(page: number, pageSize: number, coopId: number, id: number) {
+class UserListPaginateAction {
+    static async execute(page: number, pageSize: number, coopId: number) {
         const skip = (page - 1) * pageSize;
         const [ar, total] = await Promise.all ([
             prisma.accountRegistry.findMany({
                 where: {
-                    id: id,
                     deletedAt: null,
                     meterAccount: {
-                        coopId: coopId
+                        coop: {
+                            id: coopId,
+                            deletedAt: null
+                        }
+                    },
+                    user: {
+                        deleted_at: null
                     }
                 },
                 skip,
                 take: pageSize,
                 include: {
-                    meterAccount: {
-                        include: {
-                            Bill: true
-                        }
-                    },
                     user: true,
+                    meterAccount: true
                 }
             }),
             prisma.accountRegistry.count({
                 where: {
                     deletedAt: null,
-                    id: id,
                     meterAccount: {
-                        coopId: coopId
+                        coop: {
+                            id: coopId
+                        }
+                    },
+                    user : {
+                        deleted_at: null
                     }
                 },
             }),
-        ])
+
+            
+        ]);
         return { ar, total }
     }
 }
 
-export default BillListPerMeterAccountAction;
+export default UserListPaginateAction;
