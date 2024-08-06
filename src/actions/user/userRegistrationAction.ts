@@ -3,12 +3,11 @@ import prisma from "../../utils/client";
 import bcrypt from "bcrypt";
 import { formatISO, parseISO } from "date-fns";
 
-class UserRegistrationAction{
+class UserRegistrationAction {
 
     static async execute(data: Omit<User, "id" | "created_at" | "updated_at" | "deleted_at">,
         password: string
-    )
-    {
+    ) {
         const hashedPassword = await bcrypt.hash(password, 10);
         let formattedBirthdate = null;
         if (data.birthdate) {

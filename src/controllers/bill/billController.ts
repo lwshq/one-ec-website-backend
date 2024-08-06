@@ -136,6 +136,14 @@ class BillController {
                 code: 200
             });
         } catch (error: any) {
+            if (error.message.includes('User with ID')) {
+                return AppResponse.sendError({
+                    res,
+                    data: null,
+                    message: error.message,
+                    code: 404
+                });
+            }
             return AppResponse.sendError({
                 res,
                 data: null,
