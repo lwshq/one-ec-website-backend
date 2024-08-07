@@ -118,28 +118,31 @@ class BillController {
         try {
             const page = parseInt(req.query.page as string) || 1;
             const pageSize = parseInt(req.query.pageSize as string) || 10;
-            const {id} = req.params;
+            const { id } = req.params;
             const coopId = req.coorData.coop_id;
-
+    
             const { ar, total } = await BillListPerMeterAccountAction.execute(page, pageSize, coopId, parseInt(id));
-            if (ar.length === 0) {
+            if (!ar) {
                 return AppResponse.sendError({
                     res,
                     data: null,
-                    message: 'No account registries found',
+                    message: 'No account registry found',
                     code: 404
                 });
             }
+            
+            // const bills = ar.meterAccount.Bill;
             return AppResponse.sendSuccess({
                 res,
                 data: {
-                    ar,
+                    accountRegistry: ar,
+                    // bills,
                     total,
                     page,
                     pageSize,
                     totalPages: Math.ceil(total / pageSize),
                 },
-                message: 'Bill list per soa fetched successfully',
+                message: 'Bill list per meter account fetched successfully',
                 code: 200
             });
         } catch (error: any) {
