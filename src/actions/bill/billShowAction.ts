@@ -7,6 +7,17 @@ class BillShowAction {
                 id: id,
                 deletedAt: null,
             },
+            include: {
+                meterAccount: {
+                    include: {
+                        accountRegistry: {
+                            include: {
+                                user: true
+                            }
+                        }
+                    }
+                }
+            }
         });
         return bill;
     }
