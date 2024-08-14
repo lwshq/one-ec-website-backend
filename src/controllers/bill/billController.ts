@@ -168,10 +168,14 @@ class BillController {
                     code: 404
                 })
             }
+            const meterAccount = ar.meterAccount;
 
             return AppResponse.sendSuccess({
                 res: res,
-                data: ar,
+                data: {
+                    ar,
+                    meterAccount
+                },
                 message: "Bill retrieved successfully",
                 code: 200
             })
