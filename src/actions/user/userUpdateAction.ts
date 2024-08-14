@@ -1,45 +1,23 @@
-import { Cooperative, CoopCoordinator, UserRole, User, MeterAccount } from "@prisma/client";
+import { User } from "@prisma/client";
 import prisma from "../../utils/client";
-import { coopSchema } from "../../utils/validationSchemas";
-import crypto from "crypto";
-import bcrypt from "bcrypt";
-import Mailer from "../../utils/Mailer";
+import { z } from "zod";
+import { custUpdateSchema } from "../../utils/validationSchemas";
 
 class UserUpdateAction {
     static async execute(id: number,
-        data: Partial<Omit<User, 'id' | 'created_at' | 'updated_at' | 'deleted_at' | 'user_id' | 'role'>>
+        data: Partial<Omit<User, "id" | "created_at" | "updated_at" | "deleted_at">>
     ) {
-        return await prisma.$transaction(async (tx) => {
-            const ar = await tx.accountRegistry.findUnique({
-                where: {
-                    id: id,
-                    deletedAt: null
-                }
-            });
-
-            if (!ar) {
-                throw new Error("No account found");
-            }
-
-            const user = await tx.user.update({
-               where: {
-                id: ar.userId,
-                deleted_at: null
-               },
-               data,
-            });
-
-          
-
-
-
-
-            
-
+        return await prisma.user.update({
+            where : { id },
+            data,
         });
     }
 
-  
+    static validate (
+        data: Partial<Omit<User, "id" | "created_at" | "updated_at" | "deleted_at">>
+    ) {
+        return custUpdateSchema.safeParse(data);
+    }
 }
 
 export default UserUpdateAction;

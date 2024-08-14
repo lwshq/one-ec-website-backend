@@ -160,3 +160,16 @@ export const userSchema = z.object({
   address: z.string().max(255).nullable().optional(),
   password: z.string().min(8)
 });
+
+export const custUpdateSchema = z.object({
+  first_name: z.string().optional(),
+  middle_name: z.string().optional(),
+  last_name: z.string().optional(),
+  email: z.string().email().optional(),
+  contact_number: z.string(),
+  address: z.string().optional(),
+  gender: z.string().optional(),
+  birthdate: z.string()
+  .refine(val => !isNaN(Date.parse(val)), "Invalid date format for 'birthdate'. Expected format: YYYY-MM-DD")
+  .transform(val => new Date(val)).optional(),
+});
