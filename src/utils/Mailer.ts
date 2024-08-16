@@ -13,7 +13,7 @@ class Mailer {
     templateName?: string,
     plainText?: string,
     htmlContent?: string,
-    attachments?: { filename: string, path: string }[]
+    attachments?: { filename: string, path?: string, content?: Buffer, contentType?: string }[]
   ): Promise<boolean> {
     return new Promise((resolve, reject) => {
       const transporter = nodemailer.createTransport({
@@ -80,34 +80,26 @@ class Mailer {
     return await this.sendEmail(email, "Your Account Password", data, "accountPassword");
   }
 
-  async sendEmailSummary(email: string, kwhConsume: number, amount: number, rate: number, pdfPath: string) {
+  async sendEmailSummary(
+    email: string,
+    kwhConsume: number,
+    amount: number,
+    rate: number,
+    pdfBuffer: Buffer
+  ) {
     const data = { kwhConsume, amount, rate };
     const attachments = [{
-        filename: 'Bill.pdf',
-        path: pdfPath
+      filename: 'Bill.pdf',
+      content: pdfBuffer,
+      contentType: 'application/pdf'
     }];
+    
     return this.sendEmail(email, "Bill Summary", data, "billSummary", undefined, undefined, attachments);
-}
+  }
+  
 
 
-  // async testSender(message: string, email: string) {
-  //   const subject = "This is a sample sample email";
-  //   const data = { message: message };
 
-  //   return await this.sendEmail(email, subject, data, "index");
-  // }
-
-  // async sendVerificationCode(code: string, email: string) {
-  //   const subject = "Verify your account";
-  //   const content = `This is your verification code: ${code}. Do not share this with others.`;
-  //   return await this.sendEmail(email, subject, null, content);
-  // }
-
-  // async testSenderNoHtml(message: string, email: string) {
-  //   const subject = "This is a sample sample email";
-  //   // const data = { message: message };
-  //   return await this.sendEmail(email, subject, null, message);
-  // }
 }
 
 export default Mailer;

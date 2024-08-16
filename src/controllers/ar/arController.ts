@@ -38,6 +38,36 @@ class ArController {
         }
     }
 
+    async listAll(req: Request, res: Response) {
+        try {
+            const page = parseInt(req.query.page as string) || 1;
+            const pageSize = parseInt(req.query.pageSize as string) || 10;
+            const coopId = req.coorData.coop_id;
+
+            const { ar, total } = await ArListPaginateAction.listAll(page, pageSize, coopId);
+
+            return AppResponse.sendSuccess({
+                res,
+                data: {
+                    ar,
+                    total,
+                    page,
+                    pageSize,
+                    totalPages: Math.ceil(total / pageSize),
+                },
+                message: 'Account registries fetched successfully',
+                code: 200
+            });
+        } catch (error: any) {
+            return AppResponse.sendError({
+                res,
+                data: null,
+                message: `Internal server error: ${error.message}`,
+                code: 500
+            });
+        }
+    }
+
     async show(req: Request, res: Response) {
         try {
             const { id } = req.params;

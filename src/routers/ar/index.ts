@@ -11,6 +11,54 @@ const arController = new ArController();
  * @swagger
  * /api/v1/ar/list:
  *   get:
+ *     summary: Get all Approved Account Registry
+ *     tags: [Account Registry]
+ *     security:
+ *       - apiKeyAuth: []
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Account Registry retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                 message:
+ *                   type: string
+ *                 code:
+ *                   type: integer
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                 message:
+ *                   type: string
+ *                 code:
+ *                   type: integer
+ */
+
+arRoute.get(
+    "/listAll",
+    apiKeyAuth,
+    CoorMiddleware.authToken,
+    CheckAccess([], ['/soa']),
+    arController.listAll
+);
+
+/**
+ * @swagger
+ * /api/v1/ar/list:
+ *   get:
  *     summary: Get all Account Registry
  *     tags: [Account Registry]
  *     security:

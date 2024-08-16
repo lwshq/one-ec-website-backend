@@ -14,7 +14,7 @@ class BillController {
         try {
             const { id } = req.params;
             const validation = SoaCreateAction.validate(req.body);
-
+    
             if (!validation.success) {
                 return AppResponse.sendError({
                     res: res,
@@ -23,44 +23,39 @@ class BillController {
                     code: 400
                 });
             }
-
-            
-            const ar = await ArShowAction.execute(parseInt(id))
+    
+            const ar = await ArShowAction.execute(parseInt(id));
             if (!ar) {
                 return AppResponse.sendError({
                     res: res,
                     data: null,
                     message: "AR not found",
                     code: 404,
-                })
+                });
             }
-          
     
-            
             const newBill = await SoaCreateAction.execute(req.body, ar.meterId);
-            const user = await UserShowAction.execute(ar.userId)
+            const user = await UserShowAction.execute(ar.userId);
             if (!user) {
                 return AppResponse.sendError({
                     res: res,
                     data: null,
                     message: "User not found",
                     code: 404,
-                })
+                });
             }
-
-            const pdfPath = path.join(__dirname, `../../temp/bills/bill-${newBill.id}.pdf`);
-            await PDFService.generatePDF(newBill, pdfPath);
-            const mailer = new Mailer;
-            await mailer.sendEmailSummary(user.email, newBill.kwhConsume, newBill.amount, newBill.rate, pdfPath)
-
-
-            fs.unlinkSync(pdfPath);
+    
+            const pdfBuffer = await PDFService.generatePDF(newBill);
+    
+            const mailer = new Mailer();
+            await mailer.sendEmailSummary(user.email, newBill.kwhConsume, newBill.amount, newBill.rate, pdfBuffer);
+    
             return AppResponse.sendSuccess({
                 res,
                 data: newBill,
                 message: 'Bill Created successfully',
                 code: 201
-            })
+            });
         } catch (error: any) {
             console.error("Error creating bill:", error);
             return AppResponse.sendError({
@@ -68,10 +63,10 @@ class BillController {
                 data: null,
                 message: `Internal server error: ${error.message}`,
                 code: 500
-            })
+            });
         }
     }
-
+    
     async calculateBillDetails(req: Request, res: Response) {
         const { id } = req.params;
         try {
