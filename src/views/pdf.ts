@@ -1,34 +1,26 @@
-import fs from 'fs';
-const PDFDocument = require('pdfkit');
-import path from 'path';
 import { Bill } from '@prisma/client';
+const PDFDocument = require('pdfkit');
 
 class PDFService {
-    static generatePDF(bill: Bill, filePath: string): Promise<void> {
+    static generatePDF(bill: Bill): Promise<Buffer> {
         return new Promise((resolve, reject) => {
             try {
-                const dir = path.dirname(filePath);
-
-                if (!fs.existsSync(dir)) {
-                    console.log(`Directory ${dir} does not exist. Creating...`);
-                    fs.mkdirSync(dir, { recursive: true });
-                }
-
                 const doc = new PDFDocument();
-                const stream = fs.createWriteStream(filePath);
+                const buffers: Buffer[] = [];
 
-                stream.on('finish', () => {
-                    console.log(`PDF successfully saved to ${filePath}`);
-                    resolve();
+                doc.on('data', buffers.push.bind(buffers));
+                doc.on('end', () => {
+                    const pdfBuffer = Buffer.concat(buffers);
+                    console.log(`PDF successfully generated in memory`);
+                    resolve(pdfBuffer);
                 });
 
-                stream.on('error', (err) => {
-                    console.error(`Error writing PDF to ${filePath}:`, err);
+                doc.on('error', (err: any) => {
+                    console.error(`Error generating PDF:`, err);
                     reject(err);
                 });
 
-                doc.pipe(stream);
-
+                // Add content to the PDF
                 doc.fontSize(16).text(`Bill Details`, { underline: true });
                 doc.moveDown();
                 doc.fontSize(12);
@@ -54,6 +46,7 @@ class PDFService {
                 doc.text(`Previous Reading: ${bill.pRead}`);
                 doc.text(`Amount: ${bill.amount}`);
 
+                // Finalize the PDF and end the stream
                 doc.end();
             } catch (error) {
                 console.error(`Error generating PDF:`, error);
