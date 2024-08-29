@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Form</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script type="text/javascript" src="https://js.xendit.co/v1/xendit.min.js"></script>
+    
+    <script type="text/javascript">
+        Xendit.setPublishableKey('<%= apiKey %>');
+    </script>
+</head>
+
+<body>
+    <h1>Payment Form</h1>
+    <form id="payment-form" action="/process-payment" method="POST">
+        <input type="text" name="apiKey" value="<%= apiKey %>">
+
+        <label for="cardHolderFirstName">First Name:</label>
+        <input type="text" id="cardHolderFirstName" name="cardHolderFirstName" required><br>
+
+        <label for="cardHolderLastName">Last Name:</label>
+        <input type="text" id="cardHolderLastName" name="cardHolderLastName" required><br>
+
+        <label for="cardHolderEmail">Email:</label>
+        <input type="email" id="cardHolderEmail" name="cardHolderEmail" required><br>
+
+        <label for="cardHolderPhoneNumber">Phone Number:</label>
+        <input type="text" id="cardHolderPhoneNumber" name="cardHolderPhoneNumber" required><br>
+
+        <label for="amount">Amount:</label>
+        <input type="number" id="amount" name="amount" required><br>
+
+        <label for="cardNumber">Card Number:</label>
+        <input type="text" id="cardNumber" name="cardNumber" required><br>
+
+        <label for="cardExpMonth">Expiration Month (MM):</label>
+        <input type="text" id="cardExpMonth" name="cardExpMonth" required><br>
+
+        <label for="cardExpYear">Expiration Year (YYYY):</label>
+        <input type="text" id="cardExpYear" name="cardExpYear" required><br>
+
+        <label for="cardCVN">CVN:</label>
+        <input type="text" id="cardCVN" name="cardCVN" required><br>
+
+
+        <button type="submit" class="submit">Submit Payment</button>
+    </form>
+
+    <div id="error" style="display: none;">
+        <pre></pre>
+    </div>
+    <div id="three-ds-container" style="display: none;">
+        <iframe name="sample-inline-frame"></iframe>
+    </div>
+    <script>
+        $(function () {
+            var $form = $('#payment-form');
+            $form.submit(function (event) {
+                console.log("Submit button clicked");
+                event.preventDefault();
+                $form.find('.submit').prop('disabled', true);
+                console.log('Form submission intercepted.');
+    
+                const amountValue = parseFloat($form.find('#amount').val());
+    
+                console.log('About to create token...');
+                Xendit.card.createToken({
+                    amount: amountValue,
+                    card_number: $form.find('#cardNumber').val(),
+                    card_exp_month: $form.find('#cardExpMonth').val(),
+                    card_exp_year: $form.find('#cardExpYear').val(),
+                    card_cvn: $form.find('#cardCVN').val(),
+                    is_multiple_use: false,
+                    should_authenticate: true,
+                    card_holder_email: $form.find('#cardHolderEmail').val(),
+                    card_holder_first_name: $form.find('#cardHolderFirstName').val(),
+                    card_holder_last_name: $form.find('#cardHolderLastName').val(),
+                    card_holder_phone_number: $form.find('#cardHolderPhoneNumber').val()
+                }, function (err, creditCardToken) {
+                    if (err) {
+                        console.error('Token generation error:', err);
+                        $('#error pre').text(err.message);
+                        $('#error').show();
+                        $form.find('.submit').prop('disabled', false); 
+                        return;
+                    }
+    
+                    console.log('Credit Card Token Object:', creditCardToken);
+    
+                    if (creditCardToken.status === 'VERIFIED') {
+                        console.log('Generated token:', creditCardToken.id);
+                        var token = creditCardToken.id;
+                        $form.append($('<input type="hidden" name="xenditToken" />').val(token));
+                        $form.append($('<input type="hidden" name="amount" />').val(amountValue));
+    
+                        $form.get(0).submit();
+                    } else if (creditCardToken.status === 'IN_REVIEW') {
+                        console.log('3DS authentication required. Opening 3DS in a new tab...');
+                        var authWindow = window.open(creditCardToken.payer_authentication_url, '_blank');
+    
+                        if (!authWindow) {
+                            alert('Please allow popups for this site to complete the payment process.');
+                        }
+                    } else if (creditCardToken.status === 'FAILED') {
+                        console.error('Token generation failed:', creditCardToken.failure_reason);
+                        $('#error pre').text(creditCardToken.failure_reason);
+                        $('#error').show();
+                        $form.find('.submit').prop('disabled', false); 
+                    }
+                });
+    
+                return false;
+            });
+        });
+    </script>
+    <!-- <script>
+        $(function () {
+            var $form = $('#payment-form');
+            $form.submit(function (event) {
+                console.log("Submit button clicked");
+                event.preventDefault();
+                $form.find('.submit').prop('disabled', true);
+                console.log('Form submission intercepted.');
+
+                const amountValue = parseFloat($form.find('#amount').val());
+
+                console.log('About to create token...');
+                Xendit.card.createToken({
+                    amount: amountValue,
+                    card_number: $form.find('#cardNumber').val(),
+                    card_exp_month: $form.find('#cardExpMonth').val(),
+                    card_exp_year: $form.find('#cardExpYear').val(),
+                    card_cvn: $form.find('#cardCVN').val(),
+                    is_multiple_use: false,
+                    should_authenticate: true,
+                    card_holder_email: $form.find('#cardHolderEmail').val(),
+                    card_holder_first_name: $form.find('#cardHolderFirstName').val(),
+                    card_holder_last_name: $form.find('#cardHolderLastName').val(),
+                    card_holder_phone_number: $form.find('#cardHolderPhoneNumber').val()
+                }, function (err, creditCardToken) {
+                    if (err) {
+                        console.error('Error creating token:', err);
+                    } else {
+                        console.log('Token created successfully:', creditCardToken);
+                    }
+                });
+
+                function xenditResponseHandler(err, creditCardToken) {
+                    if (err) {
+                        console.error('Token generation error:', err);
+                        $('#error pre').text(err.message);
+                        $('#error').show();
+                        $form.find('.submit').prop('disabled', false);
+                        return;
+                    }
+
+                    console.log('Credit Card Token Object:', creditCardToken);
+
+                    if (creditCardToken.status === 'VERIFIED') {
+                    console.log('Generated token:', creditCardToken.id);
+                    var token = creditCardToken.id;
+                    $form.append($('<input type="hidden" name="xenditToken" />').val(token));
+                    $form.append($('<input type="hidden" name="amount" />').val(amountValue));
+
+                    $form.get(0).submit();
+                } else if (creditCardToken.status === 'IN_REVIEW') {
+                    console.log('3DS authentication required. Redirecting...');
+                    window.open(creditCardToken.payer_authentication_url, '_blank');
+                } else if (creditCardToken.status === 'FAILED') {
+                    console.error('Token generation failed:', creditCardToken.failure_reason);
+                    $('#error pre').text(creditCardToken.failure_reason);
+                    $('#error').show();
+                    $form.find('.submit').prop('disabled', false); 
+                }
+                }
+
+                return false;
+            });
+        });
+
+    </script> -->
+<!-- <div id="three-ds-container" style="display:none;">
+    <iframe name="sample-inline-frame" style="width:100%; height:400px;"></iframe>
+</div> -->
+
+
+</body>
+
+</html>
+
