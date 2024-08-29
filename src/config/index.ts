@@ -14,6 +14,7 @@ const config = {
     x_key: process.env.API_KEY,
     refreshSecret: process.env.JWT_REFRESH_SECRET_KEY,
     expiresIn: process.env.JWT_EXPIRES_IN,
+    xendit_api_key: process.env.PUBLISHABLE_API_KEY || 'xnd_public_development_P46AfL4jhLD6wMZvfOZJHzKTM9ej8NQvlyHn+Rxg+WLT/7aiDQN1hg==',
   },
   url: {
     local: `http://localhost:${process.env.PORT || 8000}/api/v1`,
